@@ -67,13 +67,18 @@ body {
 
 @media (max-width: 420px) {
   body { padding: 0; }
-  .phone { border-radius: 0; max-height: none; }
+  .phone {
+    border-radius: 0;
+    max-height: none;
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }
 
 .status-bar {
   display: flex;
   justify-content: space-between;
-  padding: 14px 22px 6px;
+  padding: 18px 22px 10px;
   font-size: 12px;
   color: var(--graphite);
   font-weight: 500;
@@ -108,7 +113,7 @@ body {
   display: flex;
   justify-content: space-around;
   align-items: center;
-  padding: 10px 0 22px;
+  padding: 10px 0 calc(22px + env(safe-area-inset-bottom, 0px));
   background: #FFFFFF;
   border-top: 0.5px solid var(--border-light);
   flex-shrink: 0;
@@ -358,7 +363,7 @@ body {
 
 .home-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 18px 14px;
+  padding: 16px 18px 14px;
 }
 
 .avatar {
@@ -652,12 +657,28 @@ body {
 
 .game-list-card {
   background: #FFFFFF; border: 0.5px solid var(--border);
-  border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+  border-radius: 14px; padding: 0; margin-bottom: 12px; cursor: pointer;
+  overflow: hidden;
+  display: flex; align-items: stretch;
 }
 .game-list-card.circle {
   border-color: rgba(184,255,90,0.5);
-  border-left: 3px solid var(--lime);
 }
+
+.glc-time-strip {
+  background: var(--graphite); color: var(--off-white);
+  padding: 14px 10px; min-width: 70px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.glc-time-strip.lime { background: var(--lime); color: var(--graphite); }
+.glc-time-strip.blue { background: var(--blue); color: #FFFFFF; }
+.glc-time-strip.coral { background: var(--coral); color: #FFFFFF; }
+.glc-time-strip .day { font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px; opacity: 0.8; }
+.glc-time-strip .time { font-size: 16px; font-weight: 500; line-height: 1.1; margin-top: 2px; }
+.glc-time-strip .ampm { font-size: 10px; opacity: 0.8; }
+
+.glc-body { flex: 1; padding: 12px 14px; min-width: 0; }
 
 .glc-header {
   display: flex; justify-content: space-between; align-items: baseline;
@@ -819,9 +840,18 @@ body {
 /* ===== ME / PROFILE ===== */
 .profile-header {
   display: flex; justify-content: space-between; align-items: center;
-  padding: 4px 18px 14px;
+  padding: 16px 18px 14px;
 }
 .profile-header h1 { font-size: 20px; font-weight: 500; }
+
+.profile-name {
+  font-size: 15px; font-weight: 500; color: var(--off-white);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.players-header, .games-content, .org-header { padding-top: 16px; }
+.create-header { padding-top: 16px; }
 
 .profile-hero-card {
   margin: 0 18px 16px; background: var(--graphite); border-radius: 16px;
@@ -1128,6 +1158,260 @@ body {
   background: transparent; cursor: pointer; font-family: inherit;
 }
 .visibility-chip.active { background: var(--lime); border-color: var(--lime); font-weight: 500; }
+
+/* ===== BOTTOM SHEET ===== */
+.sheet-overlay {
+  position: absolute; inset: 0; z-index: 80; display: none;
+  background: rgba(17,19,21,0.4);
+  align-items: flex-end; justify-content: center;
+}
+.sheet-overlay.active { display: flex; }
+
+.sheet {
+  background: #FFFFFF; width: 100%;
+  border-radius: 20px 20px 0 0;
+  padding: 14px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+  max-height: 88%; overflow-y: auto;
+  animation: slideUp 0.22s ease-out;
+}
+.sheet.dark { background: var(--graphite); color: var(--off-white); }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.sheet-handle {
+  width: 36px; height: 4px;
+  background: rgba(124,135,146,0.3); border-radius: 2px;
+  margin: 0 auto 14px;
+}
+.sheet h2 {
+  font-size: 16px; font-weight: 500; margin-bottom: 4px;
+}
+.sheet .sheet-sub {
+  font-size: 12px; color: var(--slate); margin-bottom: 16px;
+}
+
+.mini-profile-card {
+  background: var(--graphite); border-radius: 16px;
+  padding: 18px; margin-bottom: 14px;
+  position: relative; overflow: hidden;
+}
+
+.mini-profile-photo {
+  width: 80px; height: 80px; border-radius: 50%;
+  background: var(--lime); color: var(--graphite);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 28px; font-weight: 500;
+  margin: 0 auto 12px; position: relative;
+}
+.mini-profile-photo .edit {
+  position: absolute; bottom: 0; right: 0;
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--blue); color: #FFFFFF;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--graphite); font-size: 13px;
+}
+
+.mini-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.mini-stat {
+  background: rgba(247,248,245,0.06); border-radius: 10px;
+  padding: 10px; text-align: center;
+}
+.mini-stat .v { font-size: 16px; font-weight: 500; color: var(--off-white); }
+.mini-stat .l { font-size: 9px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.3px; margin-top: 2px; }
+
+.sheet-action-row {
+  display: flex; gap: 8px; padding: 12px 0;
+  border-top: 0.5px solid var(--border-light);
+  align-items: center; cursor: pointer;
+}
+.sheet-action-row i { font-size: 18px; color: var(--graphite); width: 28px; }
+.sheet-action-row .label { font-size: 13px; font-weight: 500; flex: 1; }
+
+/* ===== CHAT ===== */
+.chat-list-row {
+  background: #FFFFFF; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 0.5px solid var(--border-light);
+  cursor: pointer;
+}
+.chat-list-row .av {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 500; flex-shrink: 0;
+}
+.chat-list-row .info { flex: 1; min-width: 0; }
+.chat-list-row .name-row {
+  display: flex; justify-content: space-between;
+  align-items: baseline; margin-bottom: 2px;
+}
+.chat-list-row .name { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.chat-list-row .time { font-size: 10px; color: var(--slate); flex-shrink: 0; margin-left: 8px; }
+.chat-list-row .last-msg {
+  font-size: 11px; color: var(--slate);
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.chat-list-row.unread .last-msg { color: var(--graphite); font-weight: 500; }
+.chat-list-row .unread-pill {
+  background: var(--lime); color: var(--graphite);
+  font-size: 10px; padding: 1px 7px; border-radius: 10px;
+  font-weight: 500; margin-left: 6px;
+}
+
+.chat-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 16px 18px 14px;
+  border-bottom: 0.5px solid var(--border-light);
+  background: #FFFFFF; flex-shrink: 0;
+}
+.chat-header .av {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500;
+}
+.chat-header .info { flex: 1; }
+.chat-header .name { font-size: 14px; font-weight: 500; }
+.chat-header .status { font-size: 11px; color: var(--lime); display: inline-flex; align-items: center; gap: 4px; }
+.chat-header .status::before { content: ''; width: 6px; height: 6px; background: var(--lime); border-radius: 50%; }
+
+.chat-messages {
+  flex: 1; overflow-y: auto;
+  padding: 14px 14px 0;
+  display: flex; flex-direction: column; gap: 8px;
+  background: var(--off-white);
+}
+.msg { max-width: 75%; padding: 10px 14px; border-radius: 16px; font-size: 13px; line-height: 1.4; }
+.msg.them {
+  background: #FFFFFF; align-self: flex-start;
+  border-bottom-left-radius: 4px;
+  border: 0.5px solid var(--border-light);
+}
+.msg.me {
+  background: var(--lime); color: var(--graphite);
+  align-self: flex-end; border-bottom-right-radius: 4px;
+}
+.msg-time {
+  font-size: 9px; color: var(--slate);
+  padding: 0 6px; align-self: flex-end;
+}
+.msg.them + .msg-time { align-self: flex-start; }
+
+.msg.sticker { padding: 0; background: transparent; font-size: 56px; }
+
+.chat-day-divider {
+  text-align: center; font-size: 10px; color: var(--slate);
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 6px 0; font-weight: 500;
+}
+
+.chat-input-bar {
+  background: #FFFFFF; padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  border-top: 0.5px solid var(--border-light);
+  display: flex; align-items: center; gap: 8px;
+  flex-shrink: 0;
+}
+
+.chat-input-bar .icon-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(124,135,146,0.12);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; flex-shrink: 0;
+}
+
+.chat-input-bar .input-pill {
+  flex: 1; background: rgba(124,135,146,0.08);
+  border-radius: 20px; padding: 10px 14px;
+  font-size: 13px; color: var(--slate);
+}
+
+.chat-send-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: var(--lime); color: var(--graphite);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+}
+
+.emoji-bar {
+  display: flex; gap: 6px; padding: 8px 14px;
+  border-top: 0.5px solid var(--border-light);
+  background: #FFFFFF; overflow-x: auto;
+  scrollbar-width: none;
+}
+.emoji-bar::-webkit-scrollbar { display: none; }
+.emoji-bar.hidden { display: none; }
+.emoji-bar .emoji {
+  font-size: 22px; cursor: pointer; padding: 4px;
+  border-radius: 8px;
+}
+
+.sticker-bar {
+  display: flex; gap: 8px; padding: 10px 14px;
+  border-top: 0.5px solid var(--border-light);
+  background: #FFFFFF; overflow-x: auto;
+  scrollbar-width: none;
+}
+.sticker-bar::-webkit-scrollbar { display: none; }
+.sticker-bar.hidden { display: none; }
+.sticker-bar .sticker {
+  font-size: 44px; cursor: pointer;
+  flex-shrink: 0; padding: 4px;
+}
+
+/* ===== DATE / TIME PICKER ===== */
+.picker-grid {
+  display: grid; grid-template-columns: repeat(7, 1fr);
+  gap: 4px; margin: 14px 0;
+}
+.picker-day-label {
+  font-size: 10px; color: var(--slate);
+  text-align: center; font-weight: 500;
+}
+.picker-day {
+  aspect-ratio: 1; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 13px; border-radius: 8px;
+  cursor: pointer; color: var(--graphite);
+}
+.picker-day.dim { color: var(--slate); opacity: 0.5; }
+.picker-day.selected {
+  background: var(--lime); color: var(--graphite); font-weight: 500;
+}
+.picker-day.today { border: 1.5px solid var(--graphite); font-weight: 500; }
+
+.time-options {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+}
+.time-opt {
+  background: rgba(124,135,146,0.1);
+  padding: 10px; border-radius: 10px;
+  text-align: center; font-size: 13px; font-weight: 500;
+  cursor: pointer; color: var(--graphite);
+}
+.time-opt.selected { background: var(--lime); }
+
+.amount-input-row {
+  background: #FFFFFF; border: 1.5px solid var(--lime);
+  border-radius: 10px; padding: 14px 16px;
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 12px;
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.18);
+}
+.amount-input-row .currency { font-size: 18px; font-weight: 500; color: var(--slate); }
+.amount-input-row .amount-val { font-size: 22px; font-weight: 500; color: var(--graphite); flex: 1; }
+.amount-input-row .hint { font-size: 11px; color: var(--slate); }
+
+.split-preview {
+  background: rgba(124,135,146,0.08);
+  border-radius: 10px; padding: 12px 14px;
+}
+.split-row {
+  display: flex; justify-content: space-between;
+  font-size: 12px; padding: 4px 0;
+}
+.split-row.total {
+  border-top: 0.5px solid var(--border-light);
+  padding-top: 8px; margin-top: 4px;
+  font-weight: 500; font-size: 13px;
+}
+.split-row .v { color: var(--graphite); font-weight: 500; }
 
 /* ===== TOAST ===== */
 .toast {
@@ -1774,16 +2058,19 @@ body {
     <!-- HOME -->
     <section id="home" class="screen">
       <div class="home-header">
-        <div class="greeting">
+        <div class="greeting" onclick="openOverlay('mini-profile')" style="cursor: pointer;">
           <div class="avatar">DK</div>
           <div>
             <h2>Hi, Drishti</h2>
             <div class="matchfit">MatchFit 3.8 <span class="verified-tick"><i class="ti ti-check"></i></span></div>
           </div>
         </div>
-        <div class="bell-with-dot" onclick="openOverlay('notifications')" style="cursor: pointer;">
-          <i class="ti ti-bell" style="font-size: 22px;"></i>
-          <span class="dot-coral"></span>
+        <div style="display: flex; gap: 16px; align-items: center;">
+          <i class="ti ti-message-circle" style="font-size: 22px; cursor: pointer;" onclick="openOverlay('chats-list')"></i>
+          <div class="bell-with-dot" onclick="openOverlay('notifications')" style="cursor: pointer;">
+            <i class="ti ti-bell" style="font-size: 22px;"></i>
+            <span class="dot-coral"></span>
+          </div>
         </div>
       </div>
 
@@ -1951,7 +2238,7 @@ body {
           <h1>Games</h1>
           <div class="sub">12 near Indiranagar this week</div>
         </div>
-        <i class="ti ti-adjustments-horizontal" style="font-size: 22px;"></i>
+        <i class="ti ti-adjustments-horizontal" style="font-size: 22px; cursor: pointer;" onclick="openOverlay('filter-sheet')"></i>
       </div>
 
       <div class="filter-chips">
@@ -1963,56 +2250,71 @@ body {
 
       <div class="games-content">
         <div class="game-list-card circle" onclick="openOverlay('game-detail')">
-          <div class="glc-header">
-            <span class="glc-time">Tonight · 7:00 PM</span>
-            <span class="chip chip-slate">3.5–4.5</span>
+          <div class="glc-time-strip lime">
+            <div class="day">Tonight</div>
+            <div class="time">7:00</div>
+            <div class="ampm">PM</div>
           </div>
-          <div class="glc-venue">Greenwood Pickleball Club</div>
-          <div class="glc-meta">₹350 · 5/8 confirmed · Aarav <i class="ti ti-star" style="font-size: 11px; color: var(--coral);"></i> 4.9</div>
-          <div class="avatar-stack" style="margin-bottom: 0;">
-            <div class="mini-avatar av-purple" style="border-color: var(--lime); border-width: 2px;">PR</div>
-            <div class="mini-avatar av-yellow">AM</div>
-            <div class="mini-avatar av-teal" style="border-color: var(--lime); border-width: 2px;">RJ</div>
-            <div class="mini-avatar av-pink">SK</div>
-            <span style="font-size: 10px; color: var(--slate); margin-left: 6px;">+1</span>
+          <div class="glc-body">
+            <div class="glc-header"><span class="glc-time">Greenwood</span><span class="chip chip-slate">3.5–4.5</span></div>
+            <div class="glc-meta">₹350 · 5/8 confirmed · 2 hrs</div>
+            <div class="avatar-stack" style="margin-bottom: 0;">
+              <div class="mini-avatar av-purple" style="border-color: var(--lime); border-width: 2px;">PR</div>
+              <div class="mini-avatar av-yellow">AM</div>
+              <div class="mini-avatar av-teal" style="border-color: var(--lime); border-width: 2px;">RJ</div>
+              <div class="mini-avatar av-pink">SK</div>
+              <span style="font-size: 10px; color: var(--slate); margin-left: 6px;">+1</span>
+            </div>
+            <div class="glc-circle-tag"><i class="ti ti-sparkles"></i> Priya &amp; Rohit from your circle</div>
           </div>
-          <div class="glc-circle-tag"><i class="ti ti-sparkles"></i> Priya &amp; Rohit from your circle</div>
         </div>
 
         <div class="game-list-card" onclick="openOverlay('waitlist-detail')">
-          <div class="glc-header">
-            <span class="glc-time">Tonight · 8:30 PM</span>
-            <span class="chip chip-slate">3.0–4.0</span>
+          <div class="glc-time-strip coral">
+            <div class="day">Tonight</div>
+            <div class="time">8:30</div>
+            <div class="ampm">PM</div>
           </div>
-          <div class="glc-venue">Bandra Sports</div>
-          <div class="glc-meta">₹420 · 8/8 confirmed · waitlist open</div>
+          <div class="glc-body">
+            <div class="glc-header"><span class="glc-time">Bandra Sports</span><span class="chip chip-coral">Waitlist</span></div>
+            <div class="glc-meta">₹420 · 8/8 confirmed · join waitlist</div>
+          </div>
         </div>
 
         <div class="game-list-card" onclick="openOverlay('game-detail')">
-          <div class="glc-header">
-            <span class="glc-time">Tonight · 9:30 PM</span>
-            <span class="chip chip-slate">Open</span>
+          <div class="glc-time-strip">
+            <div class="day">Tonight</div>
+            <div class="time">9:30</div>
+            <div class="ampm">PM</div>
           </div>
-          <div class="glc-venue">Greenwood Pickleball Club</div>
-          <div class="glc-meta">₹350 · 7/8 confirmed</div>
+          <div class="glc-body">
+            <div class="glc-header"><span class="glc-time">Greenwood</span><span class="chip chip-slate">Open</span></div>
+            <div class="glc-meta">₹350 · 7/8 confirmed · 1 spot left</div>
+          </div>
         </div>
 
         <div class="game-list-card" onclick="openOverlay('game-detail')">
-          <div class="glc-header">
-            <span class="glc-time">Tomorrow · 6:00 AM</span>
-            <span class="chip chip-slate">3.5–4.5</span>
+          <div class="glc-time-strip blue">
+            <div class="day">Tomorrow</div>
+            <div class="time">6:00</div>
+            <div class="ampm">AM</div>
           </div>
-          <div class="glc-venue">Koramangala Courts</div>
-          <div class="glc-meta">₹400 · 3/8 confirmed · 5 spots</div>
+          <div class="glc-body">
+            <div class="glc-header"><span class="glc-time">Koramangala</span><span class="chip chip-slate">3.5–4.5</span></div>
+            <div class="glc-meta">₹400 · 3/8 confirmed · 5 spots</div>
+          </div>
         </div>
 
         <div class="game-list-card" onclick="openOverlay('game-detail')">
-          <div class="glc-header">
-            <span class="glc-time">Wed · 7:00 PM</span>
-            <span class="chip chip-slate">3.5–4.5</span>
+          <div class="glc-time-strip">
+            <div class="day">Wed</div>
+            <div class="time">7:00</div>
+            <div class="ampm">PM</div>
           </div>
-          <div class="glc-venue">Greenwood Pickleball Club</div>
-          <div class="glc-meta">₹350 · 4/8 confirmed · Aarav <i class="ti ti-star" style="font-size: 11px; color: var(--coral);"></i> 4.9</div>
+          <div class="glc-body">
+            <div class="glc-header"><span class="glc-time">Greenwood</span><span class="chip chip-slate">3.5–4.5</span></div>
+            <div class="glc-meta">₹350 · 4/8 confirmed · Aarav <i class="ti ti-star" style="font-size: 11px; color: var(--coral);"></i> 4.9</div>
+          </div>
         </div>
       </div>
     </section>
@@ -2325,12 +2627,12 @@ body {
       </div>
       <div class="create-section">
         <div class="create-section-label">Where</div>
-        <div class="create-card">
+        <div class="create-card" onclick="openVenuePicker()" style="cursor: pointer;">
           <div class="create-row">
             <div class="icon-tile"><i class="ti ti-map-pin"></i></div>
             <div class="info">
-              <div class="title">Greenwood Pickleball Club</div>
-              <div class="sub">Indiranagar · partner venue</div>
+              <div class="title" id="venue-name">Greenwood Pickleball Club</div>
+              <div class="sub">Indiranagar · partner venue · tap to change</div>
             </div>
             <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
           </div>
@@ -2343,17 +2645,17 @@ body {
       <div class="create-section">
         <div class="create-section-label">When</div>
         <div class="create-stacked">
-          <div class="create-stacked-row">
-            <div class="left"><i class="ti ti-calendar"></i><span class="text">Tonight, May 26</span></div>
+          <div class="create-stacked-row" onclick="openOverlay('date-picker')" style="cursor: pointer;">
+            <div class="left"><i class="ti ti-calendar"></i><span class="text" id="date-display">Tonight, May 26</span></div>
             <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
           </div>
-          <div class="create-stacked-row">
-            <div class="left"><i class="ti ti-clock"></i><span class="text">7:00 PM</span></div>
+          <div class="create-stacked-row" onclick="openOverlay('time-picker')" style="cursor: pointer;">
+            <div class="left"><i class="ti ti-clock"></i><span class="text" id="time-display">7:00 PM</span></div>
             <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
           </div>
-          <div class="create-stacked-row">
-            <div class="left"><i class="ti ti-hourglass"></i><span class="text">2 hours</span></div>
-            <span class="default">default</span>
+          <div class="create-stacked-row" onclick="openOverlay('duration-picker')" style="cursor: pointer;">
+            <div class="left"><i class="ti ti-hourglass"></i><span class="text" id="duration-display">2 hours</span></div>
+            <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
           </div>
           <div class="create-stacked-row">
             <div class="left"><i class="ti ti-repeat lime"></i></div>
@@ -2398,12 +2700,12 @@ body {
       </div>
       <div class="create-section">
         <div class="create-section-label">Price</div>
-        <div class="price-card">
-          <div class="price-row"><span class="label">Court fee · 2 × ₹1,400</span><span class="value">₹2,800</span></div>
-          <div class="price-row total"><span style="font-weight: 500; color: var(--graphite);">Per player · ÷ 8</span><span class="value">₹350</span></div>
+        <div class="price-card" onclick="openOverlay('price-edit')" style="cursor: pointer;">
+          <div class="price-row"><span class="label">Court fee · total</span><span class="value" id="price-court-fee">₹2,800</span></div>
+          <div class="price-row total"><span style="font-weight: 500; color: var(--graphite);">Per player · <span id="price-players">÷ 8</span></span><span class="value" id="price-per-player">₹350</span></div>
           <div class="price-note">
-            <i class="ti ti-shield-check"></i>
-            <span>Rally reserves the courts with Greenwood. Court fee paid directly to the venue.</span>
+            <i class="ti ti-pencil"></i>
+            <span>Tap to edit the total fee and number of players. Rally will divide it automatically.</span>
           </div>
         </div>
       </div>
@@ -2424,7 +2726,7 @@ body {
 
   <!-- NOTIFICATIONS OVERLAY -->
   <section id="notifications" class="overlay">
-    <div style="padding: 4px 18px 14px; display: flex; justify-content: space-between; align-items: center;">
+    <div style="padding: 18px 18px 14px; display: flex; justify-content: space-between; align-items: center;">
       <div style="display: flex; align-items: center; gap: 12px;">
         <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('notifications')"></i>
         <div>
@@ -2974,6 +3276,365 @@ body {
     </div>
   </section>
 
+  <!-- MINI PROFILE SHEET (tap profile on home) -->
+  <div id="mini-profile" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('mini-profile')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <div class="mini-profile-card">
+        <div class="mini-profile-photo">DK
+          <div class="edit"><i class="ti ti-pencil"></i></div>
+        </div>
+        <div style="text-align: center; margin-bottom: 14px;">
+          <div style="font-size: 16px; font-weight: 500; color: var(--off-white);">Drishti Khanna</div>
+          <div style="font-size: 11px; color: var(--slate); margin-top: 2px;">Indiranagar, Bangalore</div>
+        </div>
+        <div class="mini-stats">
+          <div class="mini-stat"><div class="v">3.83</div><div class="l">MatchFit</div></div>
+          <div class="mini-stat"><div class="v">47</div><div class="l">Games</div></div>
+          <div class="mini-stat"><div class="v">96%</div><div class="l">Reliable</div></div>
+        </div>
+      </div>
+      <div class="sheet-action-row" onclick="closeOverlay('mini-profile'); showToast('Photo upload coming up')">
+        <i class="ti ti-camera"></i><span class="label">Change profile photo</span>
+        <i class="ti ti-chevron-right" style="color: var(--slate); font-size: 14px;"></i>
+      </div>
+      <div class="sheet-action-row" onclick="closeOverlay('mini-profile'); goTo('me')">
+        <i class="ti ti-user"></i><span class="label">View full profile</span>
+        <i class="ti ti-chevron-right" style="color: var(--slate); font-size: 14px;"></i>
+      </div>
+      <div class="sheet-action-row" onclick="closeOverlay('mini-profile'); openOverlay('wallet')">
+        <i class="ti ti-wallet"></i><span class="label">Wallet · ₹420 credit</span>
+        <i class="ti ti-chevron-right" style="color: var(--slate); font-size: 14px;"></i>
+      </div>
+      <div class="sheet-action-row" onclick="closeOverlay('mini-profile'); showToast('Settings coming')">
+        <i class="ti ti-settings"></i><span class="label">Settings</span>
+        <i class="ti ti-chevron-right" style="color: var(--slate); font-size: 14px;"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAMES FILTER SHEET -->
+  <div id="filter-sheet" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('filter-sheet')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2>Filter games</h2>
+      <div class="sheet-sub">Narrow down to games that fit you</div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px;">When</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="filter-chip active">Tonight</button>
+          <button class="filter-chip">Tomorrow</button>
+          <button class="filter-chip">This week</button>
+          <button class="filter-chip">Weekends only</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <div style="font-size: 11px; color: var(--slate); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px;">Distance</div>
+          <span style="font-size: 11px; color: var(--graphite); font-weight: 500;">within 10 km</span>
+        </div>
+        <div style="position: relative; height: 4px; background: rgba(124,135,146,0.2); border-radius: 2px;">
+          <div style="position: absolute; left: 0; height: 4px; width: 40%; background: var(--lime); border-radius: 2px;"></div>
+          <div style="position: absolute; left: 40%; top: -6px; width: 16px; height: 16px; background: #FFFFFF; border: 1.5px solid var(--lime); border-radius: 50%; transform: translateX(-50%);"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+          <div style="font-size: 11px; color: var(--slate); font-weight: 500; text-transform: uppercase; letter-spacing: 0.4px;">Skill range</div>
+          <span style="font-size: 11px; color: var(--graphite); font-weight: 500;">3.5 – 4.5</span>
+        </div>
+        <div style="position: relative; height: 4px; background: rgba(124,135,146,0.2); border-radius: 2px;">
+          <div style="position: absolute; left: 35%; height: 4px; width: 22%; background: var(--lime); border-radius: 2px;"></div>
+          <div style="position: absolute; left: 35%; top: -6px; width: 16px; height: 16px; background: #FFFFFF; border: 1.5px solid var(--lime); border-radius: 50%; transform: translateX(-50%);"></div>
+          <div style="position: absolute; left: 57%; top: -6px; width: 16px; height: 16px; background: #FFFFFF; border: 1.5px solid var(--lime); border-radius: 50%; transform: translateX(-50%);"></div>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px;">Vibe</div>
+        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+          <button class="filter-chip active">Casual</button>
+          <button class="filter-chip">Competitive</button>
+          <button class="filter-chip">Beginner-friendly</button>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 16px;">
+        <div style="font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.4px;">My circle only</div>
+        <div style="display: flex; gap: 6px;">
+          <button class="filter-chip">Off</button>
+          <button class="filter-chip active">Show games with my circle</button>
+        </div>
+      </div>
+
+      <button class="btn-lime" onclick="closeOverlay('filter-sheet'); showToast('Showing 8 games')">Show 8 games</button>
+    </div>
+  </div>
+
+  <!-- CHATS LIST OVERLAY -->
+  <section id="chats-list" class="overlay">
+    <div style="padding: 18px 18px 14px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('chats-list')"></i>
+        <div>
+          <div style="font-size: 18px; font-weight: 500;">Messages</div>
+          <div style="font-size: 11px; color: var(--slate);">4 matched players</div>
+        </div>
+      </div>
+      <i class="ti ti-edit" style="font-size: 20px;"></i>
+    </div>
+
+    <div class="filter-chips">
+      <button class="filter-chip active">All</button>
+      <button class="filter-chip">Unread · 2</button>
+      <button class="filter-chip">My circle</button>
+    </div>
+
+    <div class="overlay-content">
+      <div class="chat-list-row unread" onclick="openOverlay('chat-detail')">
+        <div class="av av-purple">PR</div>
+        <div class="info">
+          <div class="name-row"><span class="name">Priya R</span><span class="time">2 min ago</span></div>
+          <div class="last-msg">Tonight at Greenwood works! See you at 7.</div>
+        </div>
+        <span class="unread-pill">2</span>
+      </div>
+
+      <div class="chat-list-row unread" onclick="openOverlay('chat-detail')">
+        <div class="av av-teal">RJ</div>
+        <div class="info">
+          <div class="name-row"><span class="name">Rohit J</span><span class="time">14 min ago</span></div>
+          <div class="last-msg">Up for a game this weekend?</div>
+        </div>
+        <span class="unread-pill">1</span>
+      </div>
+
+      <div class="chat-list-row" onclick="openOverlay('chat-detail')">
+        <div class="av av-yellow">AM</div>
+        <div class="info">
+          <div class="name-row"><span class="name">Anjali M</span><span class="time">Yesterday</span></div>
+          <div class="last-msg">Good game today! Let's play again soon</div>
+        </div>
+      </div>
+
+      <div class="chat-list-row" onclick="openOverlay('chat-detail')">
+        <div class="av av-pink">SK</div>
+        <div class="info">
+          <div class="name-row"><span class="name">Sneha K</span><span class="time">3 days</span></div>
+          <div class="last-msg">Thanks for the invite!</div>
+        </div>
+      </div>
+
+      <div style="padding: 24px 18px; text-align: center; font-size: 12px; color: var(--slate); line-height: 1.5;">
+        <i class="ti ti-shield-check" style="font-size: 18px; color: var(--blue); display: block; margin-bottom: 8px;"></i>
+        You can chat with players you've matched with.<br>Match more in the Players tab.
+      </div>
+    </div>
+  </section>
+
+  <!-- CHAT DETAIL OVERLAY (with one person) -->
+  <section id="chat-detail" class="overlay" style="display: none; flex-direction: column;">
+    <div class="chat-header" style="padding-top: 18px;">
+      <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('chat-detail')"></i>
+      <div class="av av-purple">PR</div>
+      <div class="info">
+        <div class="name">Priya R</div>
+        <div class="status">Active now</div>
+      </div>
+      <i class="ti ti-calendar-plus" style="font-size: 22px; cursor: pointer;" onclick="showToast('Game invite drafted')"></i>
+    </div>
+
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-day-divider">Yesterday</div>
+
+      <div class="msg them">Hey! Saw we matched. You play at Greenwood often?</div>
+      <div class="msg-time" style="align-self: flex-start;">7:34 PM</div>
+
+      <div class="msg me">Yeah pretty regularly! Mostly weekday evenings 🎾</div>
+      <div class="msg-time">7:36 PM</div>
+
+      <div class="msg them">Same here! Want to play sometime this week?</div>
+      <div class="msg-time" style="align-self: flex-start;">7:38 PM</div>
+
+      <div class="msg me">Definitely! Aarav is hosting tonight at 7</div>
+      <div class="msg-time">7:42 PM</div>
+
+      <div class="chat-day-divider">Today</div>
+
+      <div class="msg them">Just joined! See you there 🏓</div>
+      <div class="msg-time" style="align-self: flex-start;">2 min ago</div>
+
+      <div class="msg them sticker">🏓</div>
+      <div class="msg-time" style="align-self: flex-start;">2 min ago</div>
+    </div>
+
+    <div class="emoji-bar hidden" id="emoji-bar">
+      <span class="emoji" onclick="addToInput('😄')">😄</span>
+      <span class="emoji" onclick="addToInput('🎾')">🎾</span>
+      <span class="emoji" onclick="addToInput('🏓')">🏓</span>
+      <span class="emoji" onclick="addToInput('🔥')">🔥</span>
+      <span class="emoji" onclick="addToInput('💪')">💪</span>
+      <span class="emoji" onclick="addToInput('👋')">👋</span>
+      <span class="emoji" onclick="addToInput('🎉')">🎉</span>
+      <span class="emoji" onclick="addToInput('🙌')">🙌</span>
+      <span class="emoji" onclick="addToInput('👏')">👏</span>
+      <span class="emoji" onclick="addToInput('💯')">💯</span>
+      <span class="emoji" onclick="addToInput('⚡')">⚡</span>
+      <span class="emoji" onclick="addToInput('😎')">😎</span>
+    </div>
+
+    <div class="sticker-bar hidden" id="sticker-bar">
+      <span class="sticker" onclick="sendSticker('🏓')">🏓</span>
+      <span class="sticker" onclick="sendSticker('🎾')">🎾</span>
+      <span class="sticker" onclick="sendSticker('🏆')">🏆</span>
+      <span class="sticker" onclick="sendSticker('🔥')">🔥</span>
+      <span class="sticker" onclick="sendSticker('💪')">💪</span>
+      <span class="sticker" onclick="sendSticker('🎉')">🎉</span>
+      <span class="sticker" onclick="sendSticker('👏')">👏</span>
+    </div>
+
+    <div class="chat-input-bar">
+      <div class="icon-btn" onclick="toggleEmojiBar()"><i class="ti ti-mood-smile" style="font-size: 20px; color: var(--graphite);"></i></div>
+      <div class="icon-btn" onclick="toggleStickerBar()"><i class="ti ti-sticker" style="font-size: 20px; color: var(--graphite);"></i></div>
+      <div class="input-pill" id="chat-input-display">Type a message...</div>
+      <div class="chat-send-btn" onclick="sendMessage()"><i class="ti ti-send" style="font-size: 18px;"></i></div>
+    </div>
+  </section>
+
+  <!-- DATE PICKER SHEET -->
+  <div id="date-picker" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('date-picker')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2>Pick a date</h2>
+      <div class="sheet-sub">May 2026</div>
+      <div class="picker-grid">
+        <div class="picker-day-label">S</div><div class="picker-day-label">M</div><div class="picker-day-label">T</div>
+        <div class="picker-day-label">W</div><div class="picker-day-label">T</div><div class="picker-day-label">F</div>
+        <div class="picker-day-label">S</div>
+
+        <div class="picker-day dim">26</div><div class="picker-day dim">27</div><div class="picker-day dim">28</div>
+        <div class="picker-day dim">29</div><div class="picker-day dim">30</div>
+        <div class="picker-day" onclick="selectDate(this, 'Fri, May 1')">1</div>
+        <div class="picker-day" onclick="selectDate(this, 'Sat, May 2')">2</div>
+
+        <div class="picker-day" onclick="selectDate(this, 'Sun, May 3')">3</div>
+        <div class="picker-day" onclick="selectDate(this, 'Mon, May 4')">4</div>
+        <div class="picker-day" onclick="selectDate(this, 'Tue, May 5')">5</div>
+        <div class="picker-day" onclick="selectDate(this, 'Wed, May 6')">6</div>
+        <div class="picker-day" onclick="selectDate(this, 'Thu, May 7')">7</div>
+        <div class="picker-day" onclick="selectDate(this, 'Fri, May 8')">8</div>
+        <div class="picker-day" onclick="selectDate(this, 'Sat, May 9')">9</div>
+
+        <div class="picker-day" onclick="selectDate(this, 'Sun, May 10')">10</div>
+        <div class="picker-day" onclick="selectDate(this, 'Mon, May 11')">11</div>
+        <div class="picker-day" onclick="selectDate(this, 'Tue, May 12')">12</div>
+        <div class="picker-day" onclick="selectDate(this, 'Wed, May 13')">13</div>
+        <div class="picker-day" onclick="selectDate(this, 'Thu, May 14')">14</div>
+        <div class="picker-day" onclick="selectDate(this, 'Fri, May 15')">15</div>
+        <div class="picker-day" onclick="selectDate(this, 'Sat, May 16')">16</div>
+
+        <div class="picker-day" onclick="selectDate(this, 'Sun, May 17')">17</div>
+        <div class="picker-day" onclick="selectDate(this, 'Mon, May 18')">18</div>
+        <div class="picker-day" onclick="selectDate(this, 'Tue, May 19')">19</div>
+        <div class="picker-day" onclick="selectDate(this, 'Wed, May 20')">20</div>
+        <div class="picker-day" onclick="selectDate(this, 'Thu, May 21')">21</div>
+        <div class="picker-day" onclick="selectDate(this, 'Fri, May 22')">22</div>
+        <div class="picker-day" onclick="selectDate(this, 'Sat, May 23')">23</div>
+
+        <div class="picker-day" onclick="selectDate(this, 'Sun, May 24')">24</div>
+        <div class="picker-day" onclick="selectDate(this, 'Mon, May 25')">25</div>
+        <div class="picker-day today selected" onclick="selectDate(this, 'Tonight, May 26')">26</div>
+        <div class="picker-day" onclick="selectDate(this, 'Wed, May 27')">27</div>
+        <div class="picker-day" onclick="selectDate(this, 'Thu, May 28')">28</div>
+        <div class="picker-day" onclick="selectDate(this, 'Fri, May 29')">29</div>
+        <div class="picker-day" onclick="selectDate(this, 'Sat, May 30')">30</div>
+
+        <div class="picker-day" onclick="selectDate(this, 'Sun, May 31')">31</div>
+      </div>
+      <button class="btn-lime" onclick="closeOverlay('date-picker')">Confirm</button>
+    </div>
+  </div>
+
+  <!-- TIME PICKER SHEET -->
+  <div id="time-picker" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('time-picker')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2>Pick a time</h2>
+      <div class="sheet-sub">Available slots at Greenwood</div>
+      <div class="time-options">
+        <div class="time-opt" onclick="selectTime(this, '5:00 PM')">5:00 PM</div>
+        <div class="time-opt" onclick="selectTime(this, '6:00 PM')">6:00 PM</div>
+        <div class="time-opt selected" onclick="selectTime(this, '7:00 PM')">7:00 PM</div>
+        <div class="time-opt" onclick="selectTime(this, '8:00 PM')">8:00 PM</div>
+        <div class="time-opt" onclick="selectTime(this, '9:30 PM')">9:30 PM</div>
+        <div class="time-opt" style="opacity: 0.4; text-decoration: line-through;">10:30 PM</div>
+      </div>
+      <div style="font-size: 11px; color: var(--slate); margin: 14px 0; display: flex; align-items: center; gap: 6px;">
+        <i class="ti ti-info-circle" style="font-size: 13px; color: var(--blue);"></i>
+        <span>Greyed times are fully booked</span>
+      </div>
+      <button class="btn-lime" onclick="closeOverlay('time-picker')">Confirm</button>
+    </div>
+  </div>
+
+  <!-- DURATION PICKER SHEET -->
+  <div id="duration-picker" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('duration-picker')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2>How long?</h2>
+      <div class="sheet-sub">Most games run 1.5–2 hours</div>
+      <div class="time-options">
+        <div class="time-opt" onclick="selectDuration(this, '1 hour')">1 hour</div>
+        <div class="time-opt" onclick="selectDuration(this, '1.5 hours')">1.5 hours</div>
+        <div class="time-opt selected" onclick="selectDuration(this, '2 hours')">2 hours</div>
+        <div class="time-opt" onclick="selectDuration(this, '3 hours')">3 hours</div>
+      </div>
+      <button class="btn-lime" onclick="closeOverlay('duration-picker')" style="margin-top: 14px;">Confirm</button>
+    </div>
+  </div>
+
+  <!-- PRICE EDIT SHEET -->
+  <div id="price-edit" class="sheet-overlay" onclick="if(event.target===this)closeOverlay('price-edit')">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h2>Set the price</h2>
+      <div class="sheet-sub">Enter the total court fee — Rally divides it across players</div>
+
+      <div style="font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 6px;">Total court fee</div>
+      <div class="amount-input-row">
+        <span class="currency">₹</span>
+        <span class="amount-val" id="court-fee-val">2,800</span>
+        <span class="hint">per game</span>
+      </div>
+
+      <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+        <button class="filter-chip" onclick="setPrice('1,400')">₹1,400</button>
+        <button class="filter-chip active" onclick="setPrice('2,800')">₹2,800</button>
+        <button class="filter-chip" onclick="setPrice('3,600')">₹3,600</button>
+        <button class="filter-chip" onclick="setPrice('4,200')">₹4,200</button>
+      </div>
+
+      <div style="font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 6px;">Players sharing the fee</div>
+      <div style="display: flex; gap: 6px; margin-bottom: 16px;">
+        <button class="filter-chip" onclick="setPlayers('4')">4 players</button>
+        <button class="filter-chip" onclick="setPlayers('6')">6 players</button>
+        <button class="filter-chip active" onclick="setPlayers('8')">8 players</button>
+        <button class="filter-chip" onclick="setPlayers('12')">12 players</button>
+      </div>
+
+      <div class="split-preview">
+        <div class="split-row"><span>Total court fee</span><span class="v" id="split-total">₹2,800</span></div>
+        <div class="split-row"><span>Divided by</span><span class="v" id="split-players">8 players</span></div>
+        <div class="split-row total"><span>Per player</span><span class="v" id="split-per-player">₹350</span></div>
+      </div>
+
+      <button class="btn-lime" onclick="closeOverlay('price-edit')" style="margin-top: 16px;">Confirm</button>
+    </div>
+  </div>
+
   <!-- MATCH MODAL -->
   <section id="match-modal" class="modal">
     <div class="modal-close"><i class="ti ti-x" onclick="closeModal('match-modal')"></i></div>
@@ -2991,7 +3652,7 @@ body {
       </div>
     </div>
     <div class="modal-actions">
-      <button class="btn-primary" onclick="closeModal('match-modal'); showToast('Chat opened with Priya')"><i class="ti ti-message" style="font-size: 16px;"></i> Send a message</button>
+      <button class="btn-primary" onclick="closeModal('match-modal'); openOverlay('chat-detail')"><i class="ti ti-message" style="font-size: 16px;"></i> Send a message</button>
       <button class="btn-secondary" onclick="closeModal('match-modal'); showToast('Invite drafted')"><i class="ti ti-calendar-plus" style="font-size: 16px;"></i> Invite to a game</button>
       <div class="skip" onclick="closeModal('match-modal')">Keep swiping</div>
     </div>
@@ -3126,6 +3787,180 @@ function formatTime(secs) {
   const s = secs % 60;
   return m + ':' + (s < 10 ? '0' + s : s);
 }
+
+// ====== v3 Additions ======
+
+// Date picker selection
+function selectDate(el, label) {
+  document.querySelectorAll('.picker-day').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  const display = document.getElementById('date-display');
+  if (display) display.textContent = label;
+}
+
+// Time picker selection
+function selectTime(el, label) {
+  el.parentElement.querySelectorAll('.time-opt').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  const display = document.getElementById('time-display');
+  if (display) display.textContent = label;
+}
+
+// Duration picker selection
+function selectDuration(el, label) {
+  el.parentElement.querySelectorAll('.time-opt').forEach(d => d.classList.remove('selected'));
+  el.classList.add('selected');
+  const display = document.getElementById('duration-display');
+  if (display) display.textContent = label;
+}
+
+// Venue picker - opens venue picker sheet from create game
+function openVenuePicker() {
+  // For simplicity, just show a toast
+  showToast('Opening venue picker · Greenwood, Bandra, HSR, Koramangala available');
+}
+
+// Price editor
+let currentFee = 2800;
+let currentPlayers = 8;
+
+function setPrice(val) {
+  const cleaned = val.replace(/,/g, '');
+  currentFee = parseInt(cleaned);
+  document.getElementById('court-fee-val').textContent = val;
+  document.querySelectorAll('#price-edit .filter-chip').forEach(c => {
+    if (c.textContent.includes('₹')) c.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  updatePriceSplit();
+}
+
+function setPlayers(num) {
+  currentPlayers = parseInt(num);
+  document.querySelectorAll('#price-edit .filter-chip').forEach(c => {
+    if (c.textContent.includes('players')) c.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  updatePriceSplit();
+}
+
+function updatePriceSplit() {
+  const perPlayer = Math.ceil(currentFee / currentPlayers);
+  document.getElementById('split-total').textContent = '₹' + currentFee.toLocaleString('en-IN');
+  document.getElementById('split-players').textContent = currentPlayers + ' players';
+  document.getElementById('split-per-player').textContent = '₹' + perPlayer.toLocaleString('en-IN');
+
+  // Also update the create form preview
+  const courtFee = document.getElementById('price-court-fee');
+  const playersDiv = document.getElementById('price-players');
+  const perPlayerEl = document.getElementById('price-per-player');
+  if (courtFee) courtFee.textContent = '₹' + currentFee.toLocaleString('en-IN');
+  if (playersDiv) playersDiv.textContent = '÷ ' + currentPlayers;
+  if (perPlayerEl) perPlayerEl.textContent = '₹' + perPlayer.toLocaleString('en-IN');
+}
+
+// Chat functions
+let currentInput = '';
+
+function toggleEmojiBar() {
+  document.getElementById('emoji-bar').classList.toggle('hidden');
+  document.getElementById('sticker-bar').classList.add('hidden');
+}
+
+function toggleStickerBar() {
+  document.getElementById('sticker-bar').classList.toggle('hidden');
+  document.getElementById('emoji-bar').classList.add('hidden');
+}
+
+function addToInput(emoji) {
+  currentInput += emoji;
+  const display = document.getElementById('chat-input-display');
+  display.textContent = currentInput || 'Type a message...';
+  display.style.color = currentInput ? 'var(--graphite)' : 'var(--slate)';
+}
+
+function sendMessage() {
+  if (!currentInput.trim()) {
+    showToast('Type something first 😄');
+    return;
+  }
+  const messages = document.getElementById('chat-messages');
+  const msg = document.createElement('div');
+  msg.className = 'msg me';
+  msg.textContent = currentInput;
+  messages.appendChild(msg);
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = 'Just now';
+  messages.appendChild(time);
+
+  currentInput = '';
+  document.getElementById('chat-input-display').textContent = 'Type a message...';
+  document.getElementById('chat-input-display').style.color = 'var(--slate)';
+  document.getElementById('emoji-bar').classList.add('hidden');
+  document.getElementById('sticker-bar').classList.add('hidden');
+
+  messages.scrollTop = messages.scrollHeight;
+}
+
+function sendSticker(emoji) {
+  const messages = document.getElementById('chat-messages');
+  const msg = document.createElement('div');
+  msg.className = 'msg me sticker';
+  msg.textContent = emoji;
+  messages.appendChild(msg);
+
+  const time = document.createElement('div');
+  time.className = 'msg-time';
+  time.textContent = 'Just now';
+  messages.appendChild(time);
+
+  document.getElementById('sticker-bar').classList.add('hidden');
+  messages.scrollTop = messages.scrollHeight;
+}
+
+// Interactive calendar - click dates
+document.querySelectorAll('#calendar .cal-cell').forEach(cell => {
+  if (cell.classList.contains('dimmed')) return;
+  cell.style.cursor = 'pointer';
+  cell.addEventListener('click', () => {
+    document.querySelectorAll('#calendar .cal-cell').forEach(c => {
+      if (!c.classList.contains('today') && !c.classList.contains('dimmed')) {
+        c.style.background = '';
+        c.style.borderRadius = '';
+      }
+    });
+    const dayNum = cell.querySelector('.day-num')?.textContent;
+    if (dayNum) {
+      if (!cell.classList.contains('today')) {
+        cell.style.background = 'rgba(184,255,90,0.25)';
+        cell.style.borderRadius = '8px';
+      }
+      const hasEvent = cell.querySelector('.event-dot');
+      if (hasEvent) {
+        showToast('May ' + dayNum + ' · 7 PM Greenwood · 3.5–4.5');
+      } else {
+        showToast('May ' + dayNum + ' · No games scheduled');
+      }
+    }
+  });
+});
+
+// Chat input bar - tap to "type"
+document.addEventListener('DOMContentLoaded', () => {
+  const inputPill = document.getElementById('chat-input-display');
+  if (inputPill) {
+    inputPill.addEventListener('click', () => {
+      const sample = prompt('Type your message:');
+      if (sample) {
+        currentInput = sample;
+        inputPill.textContent = sample;
+        inputPill.style.color = 'var(--graphite)';
+      }
+    });
+  }
+});
 </script>
 
 </body>
