@@ -1,0 +1,3132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Rally — Pickleball, simplified</title>
+
+<!-- PWA: install as a native-feeling app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Rally">
+<meta name="application-name" content="Rally">
+<meta name="theme-color" content="#111315">
+
+<!-- App icon (SVG inline data URI) -->
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2246%22%20fill%3D%22%23111315%22%2F%3E%3Crect%20x%3D%2240%22%20y%3D%2240%22%20width%3D%22120%22%20height%3D%22120%22%20fill%3D%22none%22%20stroke%3D%22%23B8FF5A%22%20stroke-width%3D%223%22%20opacity%3D%220.3%22%2F%3E%3Cline%20x1%3D%2240%22%20y1%3D%22100%22%20x2%3D%22160%22%20y2%3D%22100%22%20stroke%3D%22%23B8FF5A%22%20stroke-width%3D%223%22%20opacity%3D%220.3%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%2260%22%20r%3D%2212%22%20fill%3D%22%23B8FF5A%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22148%22%20font-family%3D%22-apple-system%2C%20sans-serif%22%20font-size%3D%2280%22%20font-weight%3D%22600%22%20fill%3D%22%23F7F8F5%22%20text-anchor%3D%22middle%22%3ER%3C%2Ftext%3E%3C%2Fsvg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20200%20200%22%3E%3Crect%20width%3D%22200%22%20height%3D%22200%22%20rx%3D%2246%22%20fill%3D%22%23111315%22%2F%3E%3Ccircle%20cx%3D%22140%22%20cy%3D%2260%22%20r%3D%2212%22%20fill%3D%22%23B8FF5A%22%2F%3E%3Ctext%20x%3D%22100%22%20y%3D%22148%22%20font-family%3D%22-apple-system%2C%20sans-serif%22%20font-size%3D%2280%22%20font-weight%3D%22600%22%20fill%3D%22%23F7F8F5%22%20text-anchor%3D%22middle%22%3ER%3C%2Ftext%3E%3C%2Fsvg%3E">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.5.0/dist/tabler-icons.min.css">
+<style>
+:root {
+  --graphite: #111315;
+  --lime: #B8FF5A;
+  --blue: #4EA1FF;
+  --off-white: #F7F8F5;
+  --slate: #7C8792;
+  --coral: #FF7A59;
+  --slate-dark: #5F5E5A;
+  --border: rgba(124,135,146,0.2);
+  --border-light: rgba(124,135,146,0.12);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+html, body {
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', Roboto, sans-serif;
+  background: #2C2C2A;
+  color: var(--graphite);
+  font-size: 14px;
+  line-height: 1.4;
+  overflow: hidden;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 16px;
+}
+
+.phone {
+  width: 100%;
+  max-width: 390px;
+  height: 100vh;
+  max-height: 844px;
+  background: var(--off-white);
+  border-radius: 36px;
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+@media (max-width: 420px) {
+  body { padding: 0; }
+  .phone { border-radius: 0; max-height: none; }
+}
+
+.status-bar {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 22px 6px;
+  font-size: 12px;
+  color: var(--graphite);
+  font-weight: 500;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.status-bar .icons { display: inline-flex; gap: 5px; }
+.status-bar.dark { color: var(--off-white); }
+
+.screens {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+
+.screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: none;
+  flex-direction: column;
+  background: var(--off-white);
+  -webkit-overflow-scrolling: touch;
+}
+
+.screen.active { display: flex; }
+.screen.dark { background: var(--graphite); color: var(--off-white); }
+
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 0 22px;
+  background: #FFFFFF;
+  border-top: 0.5px solid var(--border-light);
+  flex-shrink: 0;
+}
+
+.nav-item {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  cursor: pointer; color: var(--slate); background: none; border: none;
+  font-family: inherit;
+}
+
+.nav-item i { font-size: 22px; }
+.nav-item span { font-size: 10px; }
+.nav-item.active { color: var(--graphite); font-weight: 500; }
+.nav-item.active::after {
+  content: ''; width: 18px; height: 2px; background: var(--lime);
+  border-radius: 2px; margin-top: 2px;
+}
+
+.nav-fab {
+  width: 48px; height: 48px; background: var(--lime); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin-top: -14px; border: 3px solid #FFFFFF; cursor: pointer;
+  color: var(--graphite); font-family: inherit;
+}
+.nav-fab i { font-size: 24px; }
+
+/* ===== WELCOME ===== */
+.welcome {
+  background: var(--graphite); color: var(--off-white);
+  padding: 24px 28px 36px;
+  flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+  position: relative; overflow: hidden;
+}
+
+.welcome .logo {
+  font-size: 24px; font-weight: 500; letter-spacing: -0.5px;
+  position: relative; z-index: 2;
+}
+
+.welcome .court-bg {
+  position: absolute; right: -60px; top: 80px; width: 280px;
+  opacity: 0.12; z-index: 1;
+}
+
+.welcome .ball {
+  position: absolute; right: 55px; top: 200px; width: 18px; height: 18px;
+  background: var(--lime); border-radius: 50%; z-index: 1;
+}
+
+.welcome .content { position: relative; z-index: 2; }
+.welcome h1 {
+  font-size: 34px; font-weight: 500; line-height: 1.08;
+  letter-spacing: -0.6px; margin-bottom: 14px;
+}
+.welcome .sub {
+  font-size: 14px; color: var(--slate); line-height: 1.55; margin-bottom: 32px;
+}
+
+.btn-primary {
+  background: var(--lime); color: var(--graphite); padding: 16px;
+  border-radius: 12px; font-size: 15px; font-weight: 500;
+  border: none; width: 100%; cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
+}
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-secondary {
+  background: rgba(247,248,245,0.1); color: var(--off-white); padding: 16px;
+  border-radius: 12px; font-size: 14px; font-weight: 500;
+  border: none; width: 100%; cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
+}
+
+.btn-outline {
+  background: transparent; color: var(--graphite); padding: 14px;
+  border-radius: 12px; font-size: 14px; font-weight: 500;
+  border: 0.5px solid rgba(124,135,146,0.3); width: 100%;
+  cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
+}
+
+.welcome .signin { text-align: center; font-size: 13px; color: var(--slate); margin-top: 14px; }
+.welcome .signin span { color: var(--lime); font-weight: 500; }
+
+/* ===== ONBOARDING ===== */
+.onb-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 20px 12px;
+}
+
+.progress-dots { display: inline-flex; gap: 4px; align-items: center; }
+.progress-dots .dash {
+  width: 16px; height: 4px; background: rgba(124,135,146,0.25);
+  border-radius: 2px;
+}
+.progress-dots .dash.on { background: var(--lime); }
+
+.onb-skip { font-size: 12px; color: var(--slate); font-weight: 500; cursor: pointer; }
+
+.onb-content { padding: 0 24px 28px; }
+.onb-content h1 {
+  font-size: 24px; font-weight: 500; line-height: 1.2;
+  margin-bottom: 8px; color: var(--graphite);
+}
+.onb-content .sub { font-size: 13px; color: var(--slate); line-height: 1.5; margin-bottom: 26px; }
+
+.input-group { margin-bottom: 22px; }
+.input-label { font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 6px; }
+.input-field {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.25);
+  border-radius: 10px; padding: 14px; font-size: 14px; color: var(--graphite);
+}
+.input-field.focused {
+  border: 1px solid var(--lime);
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.2);
+}
+
+.phone-row { display: flex; gap: 8px; }
+.phone-cc {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.25);
+  padding: 14px 12px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+
+.fine-print { text-align: center; font-size: 11px; color: var(--slate); line-height: 1.5; }
+
+.otp-boxes { display: flex; gap: 6px; margin-bottom: 22px; justify-content: space-between; }
+.otp-box {
+  width: 38px; height: 48px; background: #FFFFFF;
+  border: 0.5px solid rgba(124,135,146,0.3); border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 500; color: var(--graphite);
+}
+.otp-box.focused {
+  border: 1px solid var(--lime);
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.2);
+}
+
+.success-circle {
+  width: 88px; height: 88px; background: var(--lime); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 60px auto 28px;
+}
+.success-circle i { font-size: 40px; color: var(--graphite); }
+
+.center-content { text-align: center; padding: 0 24px; }
+.center-content h1 {
+  font-size: 24px; font-weight: 500; margin-bottom: 10px; color: var(--graphite);
+}
+.center-content .sub {
+  font-size: 13px; color: var(--slate); line-height: 1.6; margin-bottom: 52px;
+}
+
+.skill-card-row {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.2);
+  border-radius: 10px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+}
+.skill-card-row.selected {
+  border: 1.5px solid var(--lime);
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.2);
+}
+.skill-card-row .name { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.skill-card-row .range {
+  background: rgba(124,135,146,0.12); color: var(--slate); font-size: 10px;
+  padding: 2px 7px; border-radius: 4px; font-weight: 500;
+}
+.skill-card-row.selected .range { background: var(--lime); color: var(--graphite); }
+
+.skill-suggest {
+  text-align: center; margin: 16px 0 8px;
+  font-size: 12px; color: var(--blue); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+
+.dupr-graphite-card {
+  background: var(--graphite); border-radius: 14px; padding: 18px;
+  margin-bottom: 22px;
+}
+
+.dupr-avatar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+
+.dupr-name { font-size: 14px; font-weight: 500; color: var(--off-white); }
+.dupr-meta { font-size: 11px; color: var(--slate); }
+
+.dupr-score-row {
+  background: rgba(247,248,245,0.06); border-radius: 8px; padding: 10px 12px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.dupr-score-row .label { font-size: 11px; color: var(--slate); margin-bottom: 2px; }
+.dupr-score-row .score {
+  font-size: 18px; font-weight: 500; color: var(--off-white);
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.dupr-score-row .dupr-val { font-size: 13px; font-weight: 500; color: var(--blue); }
+
+.benefit-row {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 10px;
+}
+.benefit-row .check-circle {
+  width: 18px; height: 18px; border-radius: 50%; background: rgba(78,161,255,0.15);
+  display: flex; align-items: center; justify-content: center;
+}
+.benefit-row .check-circle i { font-size: 11px; color: var(--blue); }
+.benefit-row .text { font-size: 12px; color: var(--graphite); }
+
+.photo-upload-area { text-align: center; margin-bottom: 24px; }
+.photo-circle {
+  width: 92px; height: 92px; border-radius: 50%;
+  border: 1.5px dashed rgba(124,135,146,0.4);
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 10px; background: rgba(255,255,255,0.4);
+  cursor: pointer;
+}
+.photo-circle i { font-size: 26px; color: var(--slate); }
+.photo-circle.filled {
+  background: var(--graphite); border: none; color: var(--off-white);
+  font-size: 30px; font-weight: 500; position: relative;
+}
+.photo-circle.filled .edit-badge {
+  position: absolute; bottom: 0; right: 0; width: 28px; height: 28px;
+  background: var(--lime); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  border: 2px solid var(--off-white);
+}
+.photo-circle.filled .edit-badge i { font-size: 13px; color: var(--graphite); }
+
+.add-photo-label { font-size: 12px; color: var(--graphite); font-weight: 500; }
+
+.split-input {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px;
+}
+
+.location-detect-row {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.25);
+  border-radius: 10px; padding: 14px; font-size: 14px; color: var(--graphite);
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.location-detect-row i { font-size: 14px; color: var(--blue); }
+
+/* ===== HOME ===== */
+.home-content { padding: 0 18px 16px; }
+
+.home-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 14px;
+}
+
+.avatar {
+  width: 36px; height: 36px; border-radius: 50%; background: var(--graphite);
+  color: var(--off-white); display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500;
+}
+.avatar.lime { background: var(--lime); color: var(--graphite); }
+
+.greeting { display: flex; align-items: center; gap: 10px; }
+.greeting h2 { font-size: 15px; font-weight: 500; color: var(--graphite); }
+.greeting .matchfit {
+  font-size: 11px; color: var(--slate);
+  display: inline-flex; align-items: center; gap: 4px;
+}
+
+.verified-tick {
+  background: var(--blue); color: #FFFFFF; width: 13px; height: 13px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-size: 9px;
+}
+
+.bell-with-dot { position: relative; }
+.bell-with-dot .dot-coral {
+  position: absolute; top: -2px; right: -2px; width: 8px; height: 8px;
+  background: var(--coral); border-radius: 50%; border: 1.5px solid var(--off-white);
+}
+
+.section-label {
+  font-size: 10px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; font-weight: 500; margin-bottom: 10px;
+}
+
+.up-next-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-left: 3px solid var(--lime); border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 14px; cursor: pointer;
+}
+
+.up-next-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 6px;
+}
+.up-next-header strong { font-size: 15px; font-weight: 500; }
+
+.chip {
+  font-size: 9px; padding: 2px 7px; border-radius: 3px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.chip-lime { background: rgba(184,255,90,0.25); color: var(--graphite); }
+.chip-blue { background: rgba(78,161,255,0.12); color: #2570B8; }
+.chip-coral { background: rgba(255,122,89,0.15); color: #993C1D; }
+.chip-slate { background: rgba(124,135,146,0.12); color: var(--graphite); }
+
+.up-next-card .venue { font-size: 13px; color: var(--graphite); margin-bottom: 2px; }
+.up-next-card .meta { font-size: 11px; color: var(--slate); margin-bottom: 12px; }
+
+.avatar-stack { display: flex; align-items: center; gap: 3px; margin-bottom: 14px; }
+
+.mini-avatar {
+  width: 22px; height: 22px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 500; border: 1.5px solid #FFFFFF;
+}
+.mini-avatar:not(:first-child) { margin-left: -6px; }
+
+.av-purple { background: #CECBF6; color: #26215C; }
+.av-yellow { background: #FAC775; color: #412402; }
+.av-teal { background: #9FE1CB; color: #04342C; }
+.av-blue { background: #B5D4F4; color: #042C53; }
+.av-pink { background: #F4C0D1; color: #4B1528; }
+.av-coral { background: #F5C4B3; color: #4A1B0C; }
+.av-green { background: #C0DD97; color: #173404; }
+.av-grey { background: #D3D1C7; color: #2C2C2A; }
+.av-lime { background: var(--lime); color: var(--graphite); }
+
+.action-row { display: flex; gap: 8px; }
+
+.btn-dark {
+  flex: 1; background: var(--graphite); color: var(--off-white); padding: 10px;
+  text-align: center; border-radius: 10px; font-size: 12px; font-weight: 500;
+  border: none; cursor: pointer; font-family: inherit;
+}
+
+.btn-light {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.3);
+  padding: 10px 14px; border-radius: 10px; font-size: 12px; font-weight: 500;
+  color: var(--graphite); cursor: pointer; font-family: inherit;
+}
+
+.scroll-row {
+  display: flex; gap: 10px; overflow-x: auto; scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+  margin: 0 -18px; padding: 0 18px 4px;
+}
+.scroll-row::-webkit-scrollbar { display: none; }
+
+.mini-game-card {
+  min-width: 168px; background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 14px; overflow: hidden; cursor: pointer; flex-shrink: 0;
+}
+
+.mini-game-hero {
+  background: var(--graphite); height: 60px; padding: 6px 10px;
+  position: relative; color: #FFFFFF;
+}
+.mini-game-hero.blue { background: var(--blue); }
+
+.mini-game-hero .chip { background: rgba(255,255,255,0.95); color: var(--graphite); }
+
+.mini-game-hero .label {
+  position: absolute; bottom: 6px; left: 10px;
+  font-size: 10px; font-weight: 500; color: #FFFFFF;
+}
+
+.mini-game-body { padding: 8px 12px; }
+.mini-game-body .time { font-size: 11px; font-weight: 500; color: var(--graphite); }
+.mini-game-body .when { font-size: 10px; color: var(--slate); margin-bottom: 4px; }
+.mini-game-body .price-row { display: flex; justify-content: space-between; align-items: center; }
+.mini-game-body .price { font-size: 11px; font-weight: 500; }
+.mini-game-body .spots { font-size: 9px; color: var(--slate); }
+
+.section-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.section-header strong { font-size: 14px; font-weight: 500; color: var(--graphite); }
+.section-header .link { font-size: 11px; color: var(--blue); font-weight: 500; cursor: pointer; }
+
+.week-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+}
+.week-card .stats { font-size: 18px; font-weight: 500; color: var(--graphite); }
+.week-card .stats span { font-size: 12px; color: var(--slate); font-weight: 400; }
+.week-card .trend {
+  font-size: 11px; color: var(--graphite); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+  background: rgba(184,255,90,0.18); padding: 2px 8px; border-radius: 4px;
+}
+
+/* Tournaments teaser card on Home */
+.tournament-teaser {
+  background: var(--blue); border-radius: 14px; padding: 14px 16px;
+  margin-bottom: 14px; cursor: pointer; color: #FFFFFF;
+  position: relative; overflow: hidden;
+}
+.tournament-teaser .trophy-bg {
+  position: absolute; right: -10px; top: 0; width: 90px; opacity: 0.15;
+}
+.tournament-teaser .top-row {
+  display: flex; justify-content: space-between; margin-bottom: 8px;
+  position: relative; z-index: 1;
+}
+.tournament-teaser h3 {
+  font-size: 16px; font-weight: 500; letter-spacing: -0.2px; margin-bottom: 4px;
+  position: relative; z-index: 1;
+}
+.tournament-teaser .meta { font-size: 11px; color: rgba(255,255,255,0.85); position: relative; z-index: 1; }
+
+/* ===== PLAYERS ===== */
+.players-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 12px;
+}
+.players-header h1 { font-size: 22px; font-weight: 500; color: var(--graphite); }
+.players-header .sub { font-size: 11px; color: var(--slate); margin-top: 2px; }
+
+.filter-chips {
+  display: flex; gap: 6px; padding: 0 18px 14px;
+  overflow-x: auto; scrollbar-width: none;
+}
+.filter-chips::-webkit-scrollbar { display: none; }
+
+.filter-chip {
+  font-size: 11px; padding: 6px 12px; border-radius: 14px; white-space: nowrap;
+  border: 0.5px solid rgba(124,135,146,0.3); color: var(--graphite);
+  background: transparent; cursor: pointer; font-family: inherit;
+}
+.filter-chip.active { background: var(--lime); border-color: var(--lime); font-weight: 500; }
+.filter-chip.coral-active { background: var(--coral); border-color: var(--coral); color: #FFFFFF; font-weight: 500; }
+
+.player-card {
+  margin: 0 18px 14px; background: #FFFFFF;
+  border: 0.5px solid var(--border); border-radius: 16px; overflow: hidden;
+}
+
+.player-card-hero {
+  background: var(--graphite); height: 200px; position: relative;
+  padding: 12px 16px; overflow: hidden;
+}
+
+.player-silhouette {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -55%);
+  width: 90px; opacity: 0.08;
+}
+
+.player-card-hero .top-row {
+  display: flex; justify-content: space-between; position: relative; z-index: 1;
+}
+
+.matchfit-chip {
+  background: rgba(78,161,255,0.95); padding: 4px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 500; color: #FFFFFF;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+
+.matchfit-chip .tick {
+  background: #FFFFFF; color: var(--blue); width: 11px; height: 11px;
+  border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  font-size: 8px;
+}
+
+.distance-chip {
+  background: rgba(247,248,245,0.95); padding: 4px 10px; border-radius: 12px;
+  font-size: 10px; font-weight: 500; color: var(--graphite);
+}
+
+.player-name {
+  position: absolute; bottom: 14px; left: 16px; right: 16px; z-index: 1;
+}
+.player-name h2 {
+  font-size: 24px; font-weight: 500; color: var(--off-white); letter-spacing: -0.4px;
+}
+.player-name .loc {
+  font-size: 12px; color: var(--slate);
+  display: inline-flex; align-items: center; gap: 6px; margin-top: 2px;
+}
+
+.player-card-body { padding: 16px; }
+
+.active-row { display: flex; align-items: center; gap: 6px; margin-bottom: 14px; }
+.live-dot { width: 7px; height: 7px; background: var(--lime); border-radius: 50%; }
+.active-row .label { font-size: 11px; color: var(--graphite); font-weight: 500; }
+.active-row .sep { color: var(--slate); }
+.active-row .reliable { font-size: 11px; color: var(--slate); }
+
+.stat-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;
+}
+
+.stat-cell {
+  background: rgba(124,135,146,0.08); border-radius: 8px; padding: 10px 12px;
+}
+.stat-cell .label {
+  font-size: 9px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-bottom: 2px;
+}
+.stat-cell .value { font-size: 14px; font-weight: 500; color: var(--graphite); }
+
+.vibe-chips { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 14px; }
+.vibe-chip {
+  background: rgba(124,135,146,0.12); color: var(--graphite);
+  font-size: 10px; padding: 4px 9px; border-radius: 5px;
+}
+
+.mutual-card {
+  background: rgba(78,161,255,0.08); border: 0.5px solid rgba(78,161,255,0.2);
+  border-radius: 8px; padding: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.mutual-card i { font-size: 14px; color: var(--blue); }
+.mutual-card .text { font-size: 11px; color: var(--graphite); font-weight: 500; }
+
+.swipe-actions {
+  display: flex; justify-content: center; gap: 28px;
+  padding: 18px 18px 24px;
+}
+
+.swipe-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; background: none; border: none; font-family: inherit;
+}
+
+.swipe-btn .circle {
+  width: 52px; height: 52px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 24px; transition: transform 0.15s ease;
+}
+.swipe-btn:active .circle { transform: scale(0.92); }
+
+.swipe-btn.pass .circle {
+  background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.3); color: var(--slate);
+}
+.swipe-btn.match .circle { background: var(--lime); color: var(--graphite); }
+.swipe-btn .label { font-size: 10px; font-weight: 500; color: var(--slate); }
+.swipe-btn.match .label { color: var(--graphite); }
+
+/* ===== GAMES LIST ===== */
+.games-content { padding: 0 18px 16px; }
+
+.game-list-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; cursor: pointer;
+}
+.game-list-card.circle {
+  border-color: rgba(184,255,90,0.5);
+  border-left: 3px solid var(--lime);
+}
+
+.glc-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 4px;
+}
+.glc-time { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.glc-venue { font-size: 13px; color: var(--graphite); margin-bottom: 6px; }
+.glc-meta { font-size: 11px; color: var(--slate); margin-bottom: 8px; }
+
+.glc-circle-tag {
+  font-size: 10px; color: var(--graphite); font-weight: 500;
+  padding-top: 8px; border-top: 0.5px solid var(--border-light);
+  display: inline-flex; align-items: center; gap: 5px; margin-top: 4px;
+}
+.glc-circle-tag i { font-size: 11px; color: var(--lime); }
+
+/* ===== OVERLAY ===== */
+.overlay {
+  position: absolute; inset: 0; background: var(--off-white);
+  z-index: 50; display: none; flex-direction: column; overflow: hidden;
+}
+.overlay.active { display: flex; }
+.overlay.dark { background: var(--graphite); color: var(--off-white); }
+
+.overlay-content {
+  flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch;
+}
+
+.detail-hero {
+  background: var(--graphite); height: 180px; position: relative;
+  padding: 14px 18px; overflow: hidden; flex-shrink: 0;
+}
+.detail-hero.blue { background: var(--blue); }
+
+.detail-hero .court-bg {
+  position: absolute; right: -40px; top: -10px; width: 230px; opacity: 0.12;
+}
+.detail-hero .ball {
+  position: absolute; right: 70px; top: 90px; width: 14px; height: 14px;
+  background: var(--lime); border-radius: 50%;
+}
+
+.detail-hero-top {
+  display: flex; justify-content: space-between; align-items: center;
+  position: relative; z-index: 1;
+}
+
+.circle-btn {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(247,248,245,0.15); display: flex;
+  align-items: center; justify-content: center; color: var(--off-white);
+  border: none; cursor: pointer; font-family: inherit;
+}
+.circle-btn i { font-size: 18px; }
+.detail-hero-actions { display: flex; gap: 8px; }
+
+.detail-hero-info {
+  position: absolute; bottom: 14px; left: 18px; right: 18px; z-index: 1;
+}
+
+.detail-hero-chips {
+  display: inline-flex; align-items: center; gap: 5px; margin-bottom: 5px;
+  flex-wrap: wrap;
+}
+
+.detail-hero-chip {
+  font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.detail-hero-chip.white { background: rgba(247,248,245,0.95); color: var(--graphite); }
+.detail-hero-chip.translucent { background: rgba(247,248,245,0.15); color: var(--off-white); }
+.detail-hero-chip.lime-tinted { background: rgba(184,255,90,0.18); color: var(--lime); }
+.detail-hero-chip.lime { background: var(--lime); color: var(--graphite); }
+.detail-hero-chip.coral { background: var(--coral); color: #FFFFFF; }
+
+.detail-hero h1 { font-size: 19px; font-weight: 500; color: var(--off-white); }
+.detail-hero .sub { font-size: 11px; color: var(--slate); }
+
+.detail-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 14px; margin: 14px 18px;
+}
+
+.detail-card .row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+.detail-card .when strong { font-size: 16px; font-weight: 500; display: block; }
+.detail-card .when .sub { font-size: 12px; color: var(--slate); }
+.detail-card .price { font-size: 20px; font-weight: 500; text-align: right; }
+.detail-card .price-sub { font-size: 10px; color: var(--slate); display: block; text-align: right; }
+
+.detail-feature-row {
+  display: flex; align-items: center; gap: 8px; padding: 10px 0;
+  border-top: 0.5px solid var(--border-light);
+}
+.detail-feature-row i { font-size: 14px; color: var(--blue); }
+.detail-feature-row .text { font-size: 11px; color: var(--graphite); font-weight: 500; }
+.detail-feature-row .sep { color: var(--slate); }
+.detail-feature-row .meta { font-size: 11px; color: var(--slate); }
+
+.section-block { padding: 0 18px 14px; }
+
+.section-block .sec-header {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 10px;
+}
+
+.section-block .sec-header strong { font-size: 13px; font-weight: 500; }
+
+.player-row {
+  background: #FFFFFF; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  border-bottom: 0.5px solid var(--border-light);
+}
+.player-row:last-child { border-bottom: none; }
+
+.player-row .av {
+  width: 32px; height: 32px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 11px; font-weight: 500;
+}
+
+.player-row .info { flex: 1; }
+.player-row .name { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.player-row .meta { font-size: 10px; color: var(--slate); }
+
+.players-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+
+.cancel-policy {
+  font-size: 10px; color: var(--slate); line-height: 1.5;
+  display: flex; gap: 6px; padding: 0 18px 110px;
+}
+.cancel-policy i { font-size: 12px; color: var(--blue); margin-top: 1px; }
+
+.sticky-bottom {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  background: #FFFFFF; border-top: 0.5px solid var(--border-light);
+  padding: 14px 18px 22px; z-index: 2;
+}
+
+.btn-lime {
+  background: var(--lime); color: var(--graphite); padding: 14px;
+  text-align: center; border-radius: 12px; font-size: 15px; font-weight: 500;
+  border: none; width: 100%; cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
+}
+.btn-lime:active { transform: scale(0.99); }
+
+.btn-coral {
+  background: var(--coral); color: #FFFFFF; padding: 14px;
+  text-align: center; border-radius: 12px; font-size: 15px; font-weight: 500;
+  border: none; width: 100%; cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 6px;
+}
+
+/* ===== ME / PROFILE ===== */
+.profile-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 14px;
+}
+.profile-header h1 { font-size: 20px; font-weight: 500; }
+
+.profile-hero-card {
+  margin: 0 18px 16px; background: var(--graphite); border-radius: 16px;
+  padding: 18px; position: relative; overflow: hidden;
+}
+
+.profile-hero-court {
+  position: absolute; right: -20px; top: -10px; width: 130px; opacity: 0.08;
+}
+
+.profile-row {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+
+.profile-avatar {
+  width: 60px; height: 60px; border-radius: 50%; background: var(--lime);
+  color: var(--graphite); display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 500;
+}
+
+.profile-name { font-size: 16px; font-weight: 500; color: var(--off-white); }
+.profile-loc {
+  font-size: 11px; color: var(--slate);
+  display: inline-flex; align-items: center; gap: 4px; margin-top: 2px;
+}
+
+.profile-matchfit {
+  background: rgba(247,248,245,0.06); border-radius: 10px; padding: 14px;
+  position: relative; z-index: 1;
+}
+
+.profile-matchfit .label {
+  font-size: 10px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-bottom: 4px;
+}
+.profile-matchfit .score-row {
+  display: flex; align-items: baseline; gap: 6px; margin-bottom: 8px;
+}
+.profile-matchfit .score { font-size: 36px; font-weight: 500; color: var(--off-white); line-height: 1; }
+.profile-matchfit .label-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding-top: 8px; border-top: 0.5px solid rgba(247,248,245,0.1);
+}
+.profile-matchfit .form-label { font-size: 11px; color: var(--off-white); font-weight: 500; }
+.profile-matchfit .trend {
+  font-size: 11px; color: var(--lime); font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+
+.three-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 0 18px 16px;
+}
+
+.three-stats .stat {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 10px; padding: 10px 12px;
+}
+.three-stats .label {
+  font-size: 9px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; margin-bottom: 2px;
+}
+.three-stats .value { font-size: 17px; font-weight: 500; }
+
+.badges { display: flex; gap: 6px; flex-wrap: wrap; padding: 0 18px 16px; }
+.badge {
+  font-size: 10px; padding: 5px 10px; border-radius: 5px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.badge.blue { background: rgba(78,161,255,0.12); color: #2570B8; }
+.badge.lime { background: var(--lime); color: var(--graphite); }
+.badge.lime-tint { background: rgba(184,255,90,0.2); color: var(--graphite); }
+
+.profile-actions { padding: 0 18px 14px; }
+
+.profile-action-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 8px; cursor: pointer;
+}
+
+.profile-action-card .ico-tile {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(124,135,146,0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+.profile-action-card .ico-tile i { font-size: 18px; color: var(--graphite); }
+
+.profile-action-card .info { flex: 1; }
+.profile-action-card .title { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.profile-action-card .sub { font-size: 10px; color: var(--slate); }
+
+.profile-action-card.lime .ico-tile { background: rgba(184,255,90,0.25); }
+.profile-action-card.blue .ico-tile { background: rgba(78,161,255,0.12); }
+
+.recent-row {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 8px;
+  display: flex; justify-content: space-between; align-items: center;
+  cursor: pointer;
+}
+
+.recent-row .info .game { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.recent-row .info .with { font-size: 10px; color: var(--slate); }
+.recent-row .delta {
+  font-size: 11px; color: var(--graphite); font-weight: 500;
+  background: rgba(184,255,90,0.25); padding: 2px 7px; border-radius: 3px;
+}
+
+/* ===== MATCH MODAL ===== */
+.modal {
+  position: absolute; inset: 0; background: var(--graphite);
+  color: var(--off-white); z-index: 100; display: none;
+  flex-direction: column; padding: 12px 0 0;
+}
+.modal.active { display: flex; }
+
+.modal-close { display: flex; justify-content: flex-end; padding: 16px 20px 0; }
+.modal-close i { font-size: 24px; color: var(--slate); cursor: pointer; }
+
+.modal-content {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 0 28px; text-align: center;
+}
+
+.modal .match-label {
+  font-size: 11px; color: var(--lime); font-weight: 500;
+  margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1.2px;
+}
+
+.modal h1 {
+  font-size: 36px; font-weight: 500; line-height: 1.08;
+  letter-spacing: -0.6px; margin-bottom: 12px; color: var(--off-white);
+}
+
+.modal .sub {
+  font-size: 14px; color: var(--slate); line-height: 1.5; margin-bottom: 38px;
+}
+
+.match-avatars {
+  display: flex; justify-content: center; align-items: center; gap: 0;
+  margin-bottom: 36px;
+}
+
+.match-avatar {
+  width: 100px; height: 100px; border-radius: 50%; background: var(--graphite);
+  border: 3px solid var(--lime); display: flex; align-items: center; justify-content: center;
+  font-size: 32px; font-weight: 500; color: var(--off-white);
+}
+
+.match-avatar:last-child { margin-left: -24px; }
+
+.match-info { display: flex; justify-content: center; gap: 32px; margin-bottom: 36px; }
+.match-info .player { text-align: center; }
+.match-info .name { font-size: 14px; font-weight: 500; color: var(--off-white); }
+.match-info .mf { font-size: 11px; color: var(--slate); }
+
+.modal-actions { width: 100%; padding: 0 28px 36px; }
+.modal-actions .btn { margin-bottom: 12px; }
+.modal-actions .skip { text-align: center; font-size: 13px; color: var(--slate); font-weight: 500; cursor: pointer; margin-top: 8px; }
+
+/* ===== CREATE GAME ===== */
+.create-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 18px;
+}
+
+.create-header .left { display: flex; align-items: center; gap: 12px; }
+.create-header h1 { font-size: 19px; font-weight: 500; }
+.create-header .save { font-size: 12px; color: var(--slate); font-weight: 500; cursor: pointer; }
+
+.create-section { padding: 0 18px 12px; }
+
+.create-section-label { font-size: 11px; color: var(--slate); font-weight: 500; margin-bottom: 6px; }
+
+.create-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px;
+}
+.create-card.padded { padding: 14px; }
+
+.create-row { display: flex; align-items: center; gap: 12px; }
+
+.create-row .icon-tile {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(124,135,146,0.12);
+  display: flex; align-items: center; justify-content: center;
+}
+.create-row .icon-tile i { font-size: 18px; color: var(--graphite); }
+
+.create-row .info { flex: 1; }
+.create-row .info .title { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.create-row .info .sub { font-size: 10px; color: var(--slate); }
+
+.live-indicator {
+  display: flex; align-items: center; gap: 6px;
+  padding-top: 10px; margin-top: 10px;
+  border-top: 0.5px solid var(--border-light);
+}
+
+.live-indicator .dot {
+  width: 7px; height: 7px; background: var(--lime); border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.25);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(184,255,90,0.25); }
+  50% { box-shadow: 0 0 0 6px rgba(184,255,90,0.1); }
+}
+
+.live-indicator .label { font-size: 10px; color: var(--graphite); font-weight: 500; }
+
+.create-stacked {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 4px 0;
+}
+
+.create-stacked-row {
+  padding: 10px 14px; display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 0.5px solid var(--border-light);
+}
+.create-stacked-row:last-child { border-bottom: none; }
+
+.create-stacked-row .left { display: flex; align-items: center; gap: 12px; }
+.create-stacked-row .left i { font-size: 18px; color: var(--graphite); }
+.create-stacked-row .left i.lime { color: var(--lime); }
+.create-stacked-row .left .text { font-size: 13px; font-weight: 500; }
+.create-stacked-row .info { flex: 1; }
+.create-stacked-row .info .title { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.create-stacked-row .info .sub { font-size: 10px; color: var(--slate); }
+.create-stacked-row .default { font-size: 11px; color: var(--slate); }
+
+.toggle {
+  width: 36px; height: 22px; background: rgba(124,135,146,0.25);
+  border-radius: 11px; position: relative; cursor: pointer; flex-shrink: 0;
+  transition: background 0.2s ease;
+}
+
+.toggle .knob {
+  width: 18px; height: 18px; background: #FFFFFF; border-radius: 50%;
+  position: absolute; top: 2px; left: 2px;
+  transition: left 0.2s ease;
+}
+
+.toggle.on { background: var(--lime); }
+.toggle.on .knob { left: 16px; }
+
+.skill-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+
+.skill-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 14px;
+}
+.skill-row .range { font-size: 13px; font-weight: 500; }
+.skill-row .label { font-size: 11px; color: var(--slate); }
+
+.skill-slider {
+  position: relative; height: 4px;
+  background: rgba(124,135,146,0.2); border-radius: 2px;
+}
+.skill-slider .filled {
+  position: absolute; left: 35%; top: 0; height: 4px; width: 22%;
+  background: var(--lime); border-radius: 2px;
+}
+.skill-slider .handle {
+  position: absolute; top: -6px; width: 16px; height: 16px;
+  background: #FFFFFF; border: 1.5px solid var(--lime);
+  border-radius: 50%; transform: translateX(-50%);
+}
+
+.price-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 14px;
+}
+
+.price-row { display: flex; justify-content: space-between; font-size: 12px; padding-bottom: 8px; }
+.price-row .label { color: var(--slate); }
+.price-row .value { color: var(--graphite); font-weight: 500; }
+
+.price-row.total {
+  padding-top: 10px; padding-bottom: 0;
+  border-top: 0.5px solid var(--border-light); font-size: 13px;
+}
+.price-row.total .value { font-size: 17px; }
+
+.price-note {
+  font-size: 10px; color: var(--slate);
+  padding-top: 10px; margin-top: 10px;
+  border-top: 0.5px solid var(--border-light);
+  line-height: 1.5; display: flex; gap: 6px; align-items: flex-start;
+}
+.price-note i { font-size: 12px; color: var(--blue); margin-top: 1px; }
+
+.visibility-chips { display: flex; gap: 6px; }
+.visibility-chip {
+  font-size: 11px; padding: 6px 11px; border-radius: 14px;
+  border: 0.5px solid rgba(124,135,146,0.3); color: var(--graphite);
+  background: transparent; cursor: pointer; font-family: inherit;
+}
+.visibility-chip.active { background: var(--lime); border-color: var(--lime); font-weight: 500; }
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 90px; left: 50%;
+  transform: translateX(-50%); background: var(--graphite); color: var(--off-white);
+  padding: 12px 18px; border-radius: 24px;
+  font-size: 13px; font-weight: 500;
+  opacity: 0; transition: opacity 0.3s ease, transform 0.3s ease;
+  z-index: 200; pointer-events: none;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  white-space: nowrap; max-width: 360px;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(-4px); }
+
+.quick-start-banner {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-left: 3px solid var(--lime); border-radius: 12px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 12px;
+  cursor: pointer; margin: 0 18px 14px;
+}
+
+.quick-start-banner .icon-circle {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: rgba(184,255,90,0.2);
+  display: flex; align-items: center; justify-content: center;
+}
+.quick-start-banner .icon-circle i { font-size: 18px; color: var(--graphite); }
+.quick-start-banner .text { flex: 1; }
+.quick-start-banner .title { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.quick-start-banner .sub { font-size: 10px; color: var(--slate); }
+.quick-start-banner > i { font-size: 16px; color: var(--slate); }
+
+/* ===== NOTIFICATIONS ===== */
+.notif-row {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 6px;
+  display: flex; gap: 11px; align-items: flex-start; cursor: pointer;
+}
+.notif-row.unread { border-color: rgba(255,122,89,0.3); }
+.notif-row.read { opacity: 0.7; }
+
+.notif-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+.notif-icon i { font-size: 18px; }
+.notif-icon.lime { background: rgba(184,255,90,0.25); color: var(--graphite); }
+.notif-icon.coral { background: rgba(255,122,89,0.18); color: var(--coral); }
+.notif-icon.blue { background: rgba(78,161,255,0.15); color: var(--blue); }
+.notif-icon.slate { background: rgba(124,135,146,0.15); color: var(--slate); }
+
+.notif-text { flex: 1; min-width: 0; }
+.notif-head {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 2px;
+}
+.notif-title { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.notif-time { font-size: 10px; color: var(--slate); }
+.notif-time.coral { color: var(--coral); font-weight: 500; }
+.notif-body { font-size: 11px; color: var(--slate-dark); line-height: 1.4; }
+
+.notif-unread-dot {
+  width: 7px; height: 7px; background: var(--lime); border-radius: 50%;
+  margin-top: 8px; flex-shrink: 0;
+}
+
+/* ===== WALLET ===== */
+.wallet-hero {
+  background: var(--graphite); border-radius: 16px;
+  margin: 0 18px 14px; padding: 20px;
+  position: relative; overflow: hidden;
+}
+
+.wallet-hero .court-bg {
+  position: absolute; right: -20px; top: -10px; width: 130px; opacity: 0.08;
+}
+
+.wallet-hero .content { position: relative; z-index: 1; }
+.wallet-hero .label {
+  font-size: 10px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; font-weight: 500; margin-bottom: 8px;
+}
+
+.wallet-hero .balance-row { display: flex; align-items: baseline; gap: 6px; margin-bottom: 10px; }
+.wallet-hero .amount { font-size: 36px; font-weight: 500; color: var(--off-white); line-height: 1; }
+.wallet-hero .credit-tag { font-size: 11px; color: var(--lime); }
+
+.wallet-hero .desc {
+  font-size: 11px; color: var(--slate); line-height: 1.4;
+  padding-bottom: 14px; border-bottom: 0.5px solid rgba(247,248,245,0.1);
+}
+
+.wallet-hero .actions {
+  display: flex; gap: 8px; margin-top: 14px;
+}
+
+.wallet-hero .btn-w-lime {
+  flex: 1; background: var(--lime); color: var(--graphite); padding: 10px;
+  text-align: center; border-radius: 8px; font-size: 12px; font-weight: 500;
+  border: none; cursor: pointer; font-family: inherit;
+  display: inline-flex; justify-content: center; align-items: center; gap: 5px;
+}
+
+.wallet-hero .btn-w-translucent {
+  flex: 1; background: rgba(247,248,245,0.08); color: var(--off-white);
+  padding: 10px; text-align: center; border-radius: 8px;
+  font-size: 12px; font-weight: 500; border: none; cursor: pointer; font-family: inherit;
+}
+
+.month-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+  padding: 0 18px 16px;
+}
+.month-stat {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 10px; padding: 10px 12px;
+}
+.month-stat .label {
+  font-size: 9px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; font-weight: 500; margin-bottom: 2px;
+}
+.month-stat .value { font-size: 15px; font-weight: 500; }
+
+.txn-list {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+
+.txn-row {
+  padding: 12px 14px; display: flex; align-items: center; gap: 11px;
+  border-bottom: 0.5px solid var(--border-light);
+}
+.txn-row:last-child { border-bottom: none; }
+.txn-row.refund { background: rgba(184,255,90,0.06); }
+
+.txn-icon {
+  width: 32px; height: 32px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.txn-icon i { font-size: 16px; }
+.txn-icon.out { background: rgba(124,135,146,0.12); color: var(--slate-dark); }
+.txn-icon.in { background: rgba(184,255,90,0.25); color: var(--graphite); }
+
+.txn-info { flex: 1; min-width: 0; }
+.txn-info .title { font-size: 12px; font-weight: 500; color: var(--graphite); }
+.txn-info .meta { font-size: 10px; color: var(--slate); }
+.txn-amount { font-size: 13px; font-weight: 500; color: var(--graphite); }
+
+/* ===== CALENDAR ===== */
+.cal-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 18px 14px;
+}
+
+.cal-month-nav {
+  display: flex; align-items: center; gap: 10px;
+}
+.cal-month-nav .month { font-size: 16px; font-weight: 500; color: var(--graphite); }
+
+.cal-toggle {
+  background: rgba(124,135,146,0.12); border-radius: 8px; padding: 3px;
+  display: inline-flex; gap: 2px;
+}
+.cal-toggle .seg {
+  font-size: 10px; padding: 4px 9px; color: var(--slate); cursor: pointer;
+}
+.cal-toggle .seg.active { background: #FFFFFF; color: var(--graphite); font-weight: 500; border-radius: 6px; }
+
+.cal-grid {
+  padding: 0 14px 12px;
+}
+
+.cal-days-of-week {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+  margin-bottom: 4px;
+}
+.cal-day-label {
+  font-size: 10px; color: var(--slate); text-align: center; font-weight: 500;
+}
+
+.cal-cells {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px;
+}
+
+.cal-cell {
+  aspect-ratio: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+}
+.cal-cell.dimmed { opacity: 0.4; }
+.cal-cell.dimmed .day-num { color: var(--slate); }
+.cal-cell .day-num { font-size: 12px; color: var(--graphite); }
+.cal-cell .event-dot {
+  width: 4px; height: 4px; border-radius: 50%; margin-top: 2px;
+}
+.cal-cell.today {
+  background: var(--graphite); border-radius: 8px;
+}
+.cal-cell.today .day-num { color: var(--off-white); font-weight: 500; }
+.cal-cell.today .event-dot { width: 5px; height: 5px; }
+
+.cal-legend {
+  display: flex; gap: 12px; padding: 0 18px 12px;
+  font-size: 10px; color: var(--slate);
+}
+.cal-legend .item {
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.cal-legend .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+}
+
+/* ===== ORGANIZER DASHBOARD ===== */
+.org-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 14px;
+}
+.org-header .left { display: flex; align-items: center; gap: 10px; }
+.org-header .logo-tile {
+  width: 32px; height: 32px; border-radius: 8px;
+  background: var(--graphite); color: var(--lime);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 500;
+}
+.org-header .name { font-size: 13px; font-weight: 500; color: var(--graphite); }
+.org-header .role { font-size: 10px; color: var(--slate); }
+
+.org-summary-card {
+  background: var(--graphite); border-radius: 14px; padding: 16px;
+  position: relative; overflow: hidden; margin: 0 18px 14px;
+}
+.org-summary-card .label {
+  font-size: 10px; color: var(--slate); text-transform: uppercase;
+  letter-spacing: 0.4px; font-weight: 500; margin-bottom: 12px;
+}
+.org-summary-card .grid-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+}
+.org-summary-card .item .value { font-size: 18px; font-weight: 500; color: var(--off-white); }
+.org-summary-card .item .value.lime { color: var(--lime); }
+.org-summary-card .item .value.coral { color: var(--coral); }
+.org-summary-card .item .key {
+  font-size: 9px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.3px;
+}
+
+.org-game-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 14px; margin: 0 18px 10px;
+}
+
+.org-game-card.attention {
+  border-color: rgba(255,122,89,0.4); border-left: 3px solid var(--coral);
+}
+
+.org-game-card.ready {
+  border-color: rgba(184,255,90,0.4); border-left: 3px solid var(--lime);
+}
+
+.org-game-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  margin-bottom: 8px;
+}
+
+.org-game-head .time-venue {
+  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 2px;
+  flex-wrap: wrap;
+}
+.org-game-head .time-venue strong { font-size: 13px; font-weight: 500; }
+.org-game-head .sub { font-size: 10px; color: var(--slate); }
+
+.org-status-row {
+  display: flex; gap: 14px; padding: 8px 0;
+  border-top: 0.5px solid var(--border-light);
+  border-bottom: 0.5px solid var(--border-light);
+  margin-bottom: 10px;
+}
+
+.org-status-row .stat {
+  font-size: 11px; color: var(--slate);
+}
+.org-status-row .stat strong {
+  font-size: 14px; font-weight: 500; color: var(--graphite);
+}
+.org-status-row .stat strong.coral { color: var(--coral); }
+
+.alert-block {
+  background: rgba(255,122,89,0.08); border-radius: 8px;
+  padding: 9px 10px; margin-bottom: 10px;
+  display: flex; align-items: center; gap: 8px;
+}
+.alert-block i { font-size: 16px; color: var(--coral); }
+.alert-block .info { flex: 1; min-width: 0; }
+.alert-block .title { font-size: 11px; font-weight: 500; color: var(--graphite); }
+.alert-block .sub { font-size: 10px; color: var(--slate); }
+
+.org-actions { display: flex; gap: 6px; }
+.org-actions .act {
+  flex: 1; background: #FFFFFF; border: 0.5px solid rgba(124,135,146,0.3);
+  padding: 8px; text-align: center; border-radius: 8px;
+  font-size: 11px; font-weight: 500; color: var(--graphite);
+  cursor: pointer; font-family: inherit;
+}
+.org-actions .act.locked {
+  background: rgba(124,135,146,0.2); color: var(--slate); border: none;
+  display: inline-flex; justify-content: center; align-items: center; gap: 4px;
+}
+
+/* ===== TOURNAMENT ===== */
+.tournament-card-featured {
+  background: #FFFFFF; border: 0.5px solid rgba(78,161,255,0.4);
+  border-radius: 14px; overflow: hidden; margin: 0 18px 14px; cursor: pointer;
+}
+
+.tournament-hero-mini {
+  background: var(--blue); height: 100px; padding: 12px 14px;
+  position: relative; overflow: hidden;
+}
+.tournament-hero-mini .trophy {
+  position: absolute; right: 0; top: 10px; width: 90px; opacity: 0.18;
+}
+.tournament-hero-mini .top-chips {
+  display: flex; justify-content: space-between; position: relative; z-index: 1;
+}
+.tournament-hero-mini .bottom-info {
+  position: absolute; bottom: 12px; left: 14px; right: 14px; z-index: 1;
+  color: #FFFFFF;
+}
+.tournament-hero-mini .name { font-size: 16px; font-weight: 500; letter-spacing: -0.2px; }
+.tournament-hero-mini .when { font-size: 11px; color: rgba(255,255,255,0.85); }
+
+.tournament-card-body { padding: 12px 14px; }
+.tournament-card-body .row {
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;
+}
+.tournament-card-body .price { font-size: 12px; font-weight: 500; }
+.tournament-card-body .spots { font-size: 11px; color: var(--slate); }
+
+.tournament-list-card {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin: 0 18px 8px; cursor: pointer;
+}
+
+/* ===== WAITLIST PAYMENT ===== */
+.waitlist-banner {
+  background: var(--coral); padding: 14px 18px;
+  display: flex; gap: 12px; align-items: center;
+}
+.waitlist-banner i { font-size: 22px; color: #FFFFFF; }
+.waitlist-banner .info { flex: 1; }
+.waitlist-banner .label { font-size: 12px; color: #FFFFFF; font-weight: 500; }
+.waitlist-banner .sub { font-size: 11px; color: rgba(255,255,255,0.85); }
+.waitlist-banner .count {
+  font-size: 20px; font-weight: 500; color: #FFFFFF;
+  font-variant-numeric: tabular-nums;
+}
+
+.waitlist-center { text-align: center; padding: 20px 18px; }
+.waitlist-center h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; letter-spacing: -0.3px; }
+.waitlist-center .sub { font-size: 12px; color: var(--slate); }
+
+/* ===== POST-GAME RATING ===== */
+.rate-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 4px 18px 18px;
+}
+.rate-header .left { display: flex; align-items: center; gap: 12px; }
+.rate-header .skip { font-size: 12px; color: var(--slate); font-weight: 500; cursor: pointer; }
+
+.rate-intro { padding: 0 24px 22px; }
+.rate-intro .pre { font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.8px; font-weight: 500; margin-bottom: 8px; }
+.rate-intro h1 { font-size: 26px; font-weight: 500; line-height: 1.15; letter-spacing: -0.3px; margin-bottom: 6px; }
+.rate-intro p { font-size: 12px; color: var(--slate-dark); line-height: 1.5; }
+
+.rate-player-row {
+  background: #FFFFFF; border: 0.5px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin: 0 18px 8px;
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+}
+.rate-player-row.next {
+  border: 1px solid var(--lime);
+  box-shadow: 0 0 0 3px rgba(184,255,90,0.15);
+}
+.rate-player-row.done .name-info .role { color: var(--slate); }
+
+.rate-player-row .av {
+  width: 38px; height: 38px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 500;
+}
+.rate-player-row .name-info { flex: 1; }
+.rate-player-row .name { font-size: 13px; font-weight: 500; }
+.rate-player-row .role { font-size: 10px; color: var(--slate); }
+
+.rate-status-rated {
+  background: var(--lime); color: var(--graphite); font-size: 10px;
+  padding: 3px 8px; border-radius: 4px; font-weight: 500;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+
+.rate-status-tap { font-size: 11px; color: var(--graphite); font-weight: 500; }
+
+.privacy-callout {
+  background: rgba(78,161,255,0.08); border-radius: 10px;
+  padding: 10px 12px; margin: 6px 18px 14px;
+  display: flex; gap: 8px; align-items: flex-start;
+}
+.privacy-callout i { font-size: 14px; color: var(--blue); margin-top: 1px; }
+.privacy-callout .text { font-size: 11px; color: var(--slate-dark); line-height: 1.4; }
+.privacy-callout .text strong { color: var(--graphite); font-weight: 500; }
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+
+  <div class="status-bar" id="status-bar">
+    <span>9:41</span>
+    <span class="icons"><i class="ti ti-wifi"></i><i class="ti ti-battery-3"></i></span>
+  </div>
+
+  <div class="screens">
+
+    <!-- WELCOME -->
+    <section id="welcome" class="screen dark active">
+      <div class="welcome">
+        <svg class="court-bg" viewBox="0 0 200 280" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="20" y="20" width="160" height="240" fill="none" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="20" y1="140" x2="180" y2="140" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="20" y1="100" x2="180" y2="100" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="20" y1="180" x2="180" y2="180" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="100" y1="20" x2="100" y2="100" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="100" y1="180" x2="100" y2="260" stroke="#F7F8F5" stroke-width="1.5"/>
+        </svg>
+        <div class="ball"></div>
+        <div class="logo">Rally</div>
+        <div class="content">
+          <h1>Find Your Game.<br>Find Your People.</h1>
+          <div class="sub">Skill matched games with the right players, at the right court.</div>
+          <button class="btn-primary" onclick="goTo('phone-entry')">Get started <i class="ti ti-arrow-right"></i></button>
+          <div style="margin-top: 14px;">
+            <button class="btn-secondary" onclick="goTo('home', true)">Skip to demo (organizer mode)</button>
+          </div>
+          <div class="signin" style="margin-top: 14px;">Already have an account? <span>Sign in</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PHONE ENTRY -->
+    <section id="phone-entry" class="screen">
+      <div class="onb-header">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="goTo('welcome')"></i>
+        <span></span>
+      </div>
+      <div class="onb-content">
+        <h1>What's your number?</h1>
+        <div class="sub">We'll text you a code to verify.</div>
+        <div class="input-group">
+          <div class="input-label">Phone</div>
+          <div class="phone-row">
+            <div class="phone-cc">+91 <i class="ti ti-chevron-down" style="font-size: 12px; color: var(--slate);"></i></div>
+            <div class="input-field focused" style="flex: 1;">98765 43210</div>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="goTo('otp')">Continue</button>
+        <div class="fine-print" style="margin-top: 14px;">By continuing, you agree to our<br>Terms &amp; Privacy policy.</div>
+      </div>
+    </section>
+
+    <!-- OTP -->
+    <section id="otp" class="screen">
+      <div class="onb-header">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="goTo('phone-entry')"></i>
+        <span></span>
+      </div>
+      <div class="onb-content">
+        <h1>Enter your code</h1>
+        <div class="sub" style="margin-bottom: 4px;">Sent to +91 98765 43210</div>
+        <div style="display: inline-block; font-size: 12px; color: var(--graphite); font-weight: 500; margin-bottom: 28px; border-bottom: 1px solid rgba(17,19,21,0.25); padding-bottom: 1px; cursor: pointer;" onclick="goTo('phone-entry')">Edit number</div>
+        <div class="otp-boxes">
+          <div class="otp-box">4</div>
+          <div class="otp-box">9</div>
+          <div class="otp-box">2</div>
+          <div class="otp-box">7</div>
+          <div class="otp-box">3</div>
+          <div class="otp-box focused"></div>
+        </div>
+        <div style="text-align: center; font-size: 12px; color: var(--slate); margin-bottom: 28px;">Resend in <strong style="color: var(--graphite); font-weight: 500;">0:42</strong></div>
+        <button class="btn-primary" onclick="goTo('welcome-bridge')">Continue</button>
+      </div>
+    </section>
+
+    <!-- WELCOME BRIDGE -->
+    <section id="welcome-bridge" class="screen">
+      <div class="onb-header">
+        <span></span>
+        <span></span>
+      </div>
+      <div class="success-circle"><i class="ti ti-check"></i></div>
+      <div class="center-content">
+        <h1>Welcome to Rally</h1>
+        <div class="sub">Let's get you set up.<br>Takes about 30 seconds.</div>
+        <button class="btn-primary" onclick="goTo('skill-declare')">Let's go</button>
+      </div>
+    </section>
+
+    <!-- SKILL DECLARE -->
+    <section id="skill-declare" class="screen">
+      <div class="onb-header">
+        <div class="progress-dots">
+          <span class="dash on"></span>
+          <span class="dash"></span>
+          <span class="dash"></span>
+        </div>
+        <span class="onb-skip" onclick="goTo('home', true)">Skip</span>
+      </div>
+      <div class="onb-content">
+        <h1>What's your level?</h1>
+        <div class="sub">We'll match you with similar players.<br>You can change this anytime.</div>
+
+        <div class="skill-card-row" onclick="selectSkill(this)">
+          <div class="name">Just Starting</div>
+          <span class="range">1.0–2.5</span>
+        </div>
+        <div class="skill-card-row" onclick="selectSkill(this)">
+          <div class="name">Building It</div>
+          <span class="range">2.5–3.5</span>
+        </div>
+        <div class="skill-card-row selected" onclick="selectSkill(this)">
+          <div class="name">Finding Form</div>
+          <span class="range">3.5–4.5</span>
+        </div>
+        <div class="skill-card-row" onclick="selectSkill(this)">
+          <div class="name">Strong Player</div>
+          <span class="range">4.5–6.5</span>
+        </div>
+        <div class="skill-card-row" onclick="selectSkill(this)">
+          <div class="name">Top Tier</div>
+          <span class="range">6.5+</span>
+        </div>
+
+        <div class="skill-suggest" style="text-align: center;"><i class="ti ti-sparkles"></i> Not sure? Let us suggest</div>
+
+        <button class="btn-primary" onclick="goTo('dupr-link')">Continue</button>
+      </div>
+    </section>
+
+    <!-- DUPR LINK -->
+    <section id="dupr-link" class="screen">
+      <div class="onb-header">
+        <div class="progress-dots">
+          <span class="dash on"></span>
+          <span class="dash on"></span>
+          <span class="dash"></span>
+        </div>
+        <span class="onb-skip" onclick="goTo('profile-setup')">Skip</span>
+      </div>
+      <div class="onb-content">
+        <h1>Got a DUPR score?</h1>
+        <div class="sub">Link it for sharper matching and a verified MatchFit on your profile.</div>
+
+        <div class="dupr-graphite-card">
+          <div class="dupr-avatar-row">
+            <div class="avatar lime" style="width: 44px; height: 44px; font-size: 15px;">PR</div>
+            <div>
+              <div class="dupr-name">Priya R</div>
+              <div class="dupr-meta">Indiranagar · 47 games</div>
+            </div>
+          </div>
+          <div class="dupr-score-row">
+            <div>
+              <div class="label">MatchFit</div>
+              <div class="score">4.2 <span class="verified-tick" style="width: 16px; height: 16px;"><i class="ti ti-check" style="font-size: 11px;"></i></span></div>
+            </div>
+            <div style="text-align: right;">
+              <div class="label">DUPR</div>
+              <div class="dupr-val">4.18</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="benefit-row">
+          <div class="check-circle"><i class="ti ti-check"></i></div>
+          <div class="text">Verified badge on your profile</div>
+        </div>
+        <div class="benefit-row">
+          <div class="check-circle"><i class="ti ti-check"></i></div>
+          <div class="text">Skip the calibration period</div>
+        </div>
+        <div class="benefit-row" style="margin-bottom: 22px;">
+          <div class="check-circle"><i class="ti ti-check"></i></div>
+          <div class="text">Match faster with the right players</div>
+        </div>
+
+        <button class="btn-primary" onclick="goTo('profile-setup')" style="margin-bottom: 10px;">Link DUPR</button>
+        <div style="text-align: center; font-size: 12px; color: var(--slate); font-weight: 500; cursor: pointer;" onclick="goTo('profile-setup')">Skip for now</div>
+      </div>
+    </section>
+
+    <!-- PROFILE SETUP -->
+    <section id="profile-setup" class="screen">
+      <div class="onb-header">
+        <div class="progress-dots">
+          <span class="dash on"></span>
+          <span class="dash on"></span>
+          <span class="dash on"></span>
+        </div>
+        <span class="onb-skip" onclick="goTo('home', true)">Skip</span>
+      </div>
+      <div class="onb-content">
+        <h1>Almost done.</h1>
+        <div class="sub">Set up your profile so players can find you.</div>
+
+        <div class="photo-upload-area">
+          <div class="photo-circle filled">DK
+            <div class="edit-badge"><i class="ti ti-pencil"></i></div>
+          </div>
+        </div>
+
+        <div class="split-input">
+          <div>
+            <div class="input-label">First name</div>
+            <div class="input-field">Drishti</div>
+          </div>
+          <div>
+            <div class="input-label">Last name</div>
+            <div class="input-field">Khanna</div>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom: 6px;">
+          <div class="input-label">City</div>
+          <div class="location-detect-row">
+            <span>Bangalore</span>
+            <i class="ti ti-current-location"></i>
+          </div>
+        </div>
+        <div style="font-size: 11px; color: var(--slate); margin-bottom: 22px;"><i class="ti ti-check" style="font-size: 11px; color: var(--lime); vertical-align: -1px;"></i> Location detected</div>
+
+        <button class="btn-primary" onclick="goTo('home', true)">Complete profile</button>
+      </div>
+    </section>
+
+    <!-- HOME -->
+    <section id="home" class="screen">
+      <div class="home-header">
+        <div class="greeting">
+          <div class="avatar">DK</div>
+          <div>
+            <h2>Hi, Drishti</h2>
+            <div class="matchfit">MatchFit 3.8 <span class="verified-tick"><i class="ti ti-check"></i></span></div>
+          </div>
+        </div>
+        <div class="bell-with-dot" onclick="openOverlay('notifications')" style="cursor: pointer;">
+          <i class="ti ti-bell" style="font-size: 22px;"></i>
+          <span class="dot-coral"></span>
+        </div>
+      </div>
+
+      <div class="home-content">
+
+        <div class="section-label">Up next</div>
+        <div class="up-next-card" onclick="openOverlay('game-detail')">
+          <div class="up-next-header">
+            <strong>Tonight, 7:00 PM</strong>
+            <span class="chip chip-lime">Confirmed</span>
+          </div>
+          <div class="venue">Greenwood Pickleball Club</div>
+          <div class="meta">Indiranagar · 3.5–4.5 · ₹350 paid</div>
+          <div class="avatar-stack">
+            <div class="mini-avatar av-purple">PR</div>
+            <div class="mini-avatar av-yellow">AM</div>
+            <div class="mini-avatar av-teal">RJ</div>
+            <span style="font-size: 11px; color: var(--slate); margin-left: 6px;">+ you & 4 others</span>
+          </div>
+          <div class="action-row">
+            <button class="btn-dark"><i class="ti ti-navigation" style="font-size: 14px; vertical-align: -2px;"></i> Get directions</button>
+            <button class="btn-light">Details</button>
+          </div>
+        </div>
+
+        <div class="tournament-teaser" onclick="openOverlay('tournament-detail')">
+          <svg class="trophy-bg" viewBox="0 0 60 60" aria-hidden="true">
+            <path d="M 20 50 L 30 10 L 40 50 Z" fill="#FFFFFF"/>
+            <rect x="22" y="50" width="16" height="4" fill="#FFFFFF"/>
+            <circle cx="30" cy="8" r="5" fill="#FFFFFF"/>
+          </svg>
+          <div class="top-row">
+            <span class="chip chip-coral" style="background: var(--coral); color: #FFFFFF;"><i class="ti ti-flame" style="font-size: 11px;"></i> 3 days to register</span>
+            <span class="chip" style="background: rgba(255,255,255,0.95); color: #042C53;">3.5+</span>
+          </div>
+          <h3>Bangalore Open 2026</h3>
+          <div class="meta">Sat–Sun, May 31 · Greenwood · ₹1,500 entry</div>
+        </div>
+
+        <div class="section-header">
+          <strong>More games near you</strong>
+          <span class="link" onclick="goTo('games')">See all</span>
+        </div>
+
+        <div class="scroll-row">
+          <div class="mini-game-card" onclick="openOverlay('game-detail')">
+            <div class="mini-game-hero"><span class="chip">3.5–4.5</span><span class="label">Greenwood</span></div>
+            <div class="mini-game-body">
+              <div class="time">Wed 7:00 PM</div>
+              <div class="when">in 2 days</div>
+              <div class="price-row"><span class="price">₹350</span><span class="spots">4/8</span></div>
+            </div>
+          </div>
+          <div class="mini-game-card" onclick="openOverlay('game-detail')">
+            <div class="mini-game-hero blue"><span class="chip">3.0–4.0</span><span class="label">Koramangala</span></div>
+            <div class="mini-game-body">
+              <div class="time">Sat 9:00 AM</div>
+              <div class="when">this weekend</div>
+              <div class="price-row"><span class="price">₹400</span><span class="spots">2/8</span></div>
+            </div>
+          </div>
+          <div class="mini-game-card" onclick="openOverlay('game-detail')">
+            <div class="mini-game-hero"><span class="chip">4.0–4.5</span><span class="label">HSR</span></div>
+            <div class="mini-game-body">
+              <div class="time">Sun 5:00 PM</div>
+              <div class="when">this weekend</div>
+              <div class="price-row"><span class="price">₹420</span><span class="spots">6/8</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="margin-top: 18px;">
+          <div class="section-header">
+            <strong>Your week</strong>
+            <span class="link" onclick="goTo('me')">View profile</span>
+          </div>
+          <div class="week-card" onclick="goTo('me')">
+            <div>
+              <div class="stats">3 games <span>· 2 wins</span></div>
+              <div style="margin-top: 4px;"><span class="trend"><i class="ti ti-trending-up" style="font-size: 12px;"></i> MatchFit +0.08</span></div>
+            </div>
+            <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PLAYERS -->
+    <section id="players" class="screen">
+      <div class="players-header">
+        <div>
+          <h1>Players</h1>
+          <div class="sub">Match with players at your level</div>
+        </div>
+        <i class="ti ti-adjustments-horizontal" style="font-size: 22px;"></i>
+      </div>
+
+      <div class="filter-chips">
+        <button class="filter-chip active">3.5–4.5</button>
+        <button class="filter-chip">10 km</button>
+        <button class="filter-chip">Active</button>
+      </div>
+
+      <div class="player-card">
+        <div class="player-card-hero">
+          <svg class="player-silhouette" viewBox="0 0 100 100" aria-hidden="true">
+            <circle cx="50" cy="35" r="18" fill="#F7F8F5"/>
+            <path d="M 18 95 Q 18 65 50 65 Q 82 65 82 95 Z" fill="#F7F8F5"/>
+          </svg>
+          <div class="top-row">
+            <span class="matchfit-chip"><i class="ti ti-sparkles" style="font-size: 12px;"></i> MatchFit 3.7 <span class="tick"><i class="ti ti-check"></i></span></span>
+            <span class="distance-chip">2 km away</span>
+          </div>
+          <div class="player-name">
+            <h2>Priya R</h2>
+            <div class="loc"><i class="ti ti-map-pin" style="font-size: 12px;"></i> Indiranagar</div>
+          </div>
+        </div>
+        <div class="player-card-body">
+          <div class="active-row">
+            <span class="live-dot"></span>
+            <span class="label">Active this week</span>
+            <span class="sep">·</span>
+            <span class="reliable">96% reliable</span>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-cell"><div class="label">Games</div><div class="value">47 played</div></div>
+            <div class="stat-cell"><div class="label">Plays</div><div class="value">3×/week</div></div>
+          </div>
+          <div class="vibe-chips">
+            <span class="vibe-chip">Casual</span>
+            <span class="vibe-chip">Doubles</span>
+            <span class="vibe-chip">Mornings</span>
+            <span class="vibe-chip">Greenwood</span>
+          </div>
+          <div class="mutual-card">
+            <i class="ti ti-friends"></i>
+            <div class="text">3 mutual matches
+              <span style="display: inline-flex; margin-left: 6px; vertical-align: middle;">
+                <span class="mini-avatar av-teal" style="width: 16px; height: 16px; font-size: 8px;">RJ</span>
+                <span class="mini-avatar av-yellow" style="width: 16px; height: 16px; font-size: 8px;">AM</span>
+                <span class="mini-avatar av-pink" style="width: 16px; height: 16px; font-size: 8px;">SK</span>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="swipe-actions">
+        <button class="swipe-btn pass" onclick="showToast('Passed · next player loading')">
+          <div class="circle"><i class="ti ti-x"></i></div>
+          <span class="label">Pass</span>
+        </button>
+        <button class="swipe-btn match" onclick="openModal('match-modal')">
+          <div class="circle"><i class="ti ti-check"></i></div>
+          <span class="label">Match</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- GAMES LIST -->
+    <section id="games" class="screen">
+      <div class="players-header">
+        <div>
+          <h1>Games</h1>
+          <div class="sub">12 near Indiranagar this week</div>
+        </div>
+        <i class="ti ti-adjustments-horizontal" style="font-size: 22px;"></i>
+      </div>
+
+      <div class="filter-chips">
+        <button class="filter-chip active">Today</button>
+        <button class="filter-chip">This week</button>
+        <button class="filter-chip"><i class="ti ti-friends" style="font-size: 12px; vertical-align: -2px;"></i> My circle</button>
+        <button class="filter-chip">3.5–4.5</button>
+      </div>
+
+      <div class="games-content">
+        <div class="game-list-card circle" onclick="openOverlay('game-detail')">
+          <div class="glc-header">
+            <span class="glc-time">Tonight · 7:00 PM</span>
+            <span class="chip chip-slate">3.5–4.5</span>
+          </div>
+          <div class="glc-venue">Greenwood Pickleball Club</div>
+          <div class="glc-meta">₹350 · 5/8 confirmed · Aarav <i class="ti ti-star" style="font-size: 11px; color: var(--coral);"></i> 4.9</div>
+          <div class="avatar-stack" style="margin-bottom: 0;">
+            <div class="mini-avatar av-purple" style="border-color: var(--lime); border-width: 2px;">PR</div>
+            <div class="mini-avatar av-yellow">AM</div>
+            <div class="mini-avatar av-teal" style="border-color: var(--lime); border-width: 2px;">RJ</div>
+            <div class="mini-avatar av-pink">SK</div>
+            <span style="font-size: 10px; color: var(--slate); margin-left: 6px;">+1</span>
+          </div>
+          <div class="glc-circle-tag"><i class="ti ti-sparkles"></i> Priya &amp; Rohit from your circle</div>
+        </div>
+
+        <div class="game-list-card" onclick="openOverlay('waitlist-detail')">
+          <div class="glc-header">
+            <span class="glc-time">Tonight · 8:30 PM</span>
+            <span class="chip chip-slate">3.0–4.0</span>
+          </div>
+          <div class="glc-venue">Bandra Sports</div>
+          <div class="glc-meta">₹420 · 8/8 confirmed · waitlist open</div>
+        </div>
+
+        <div class="game-list-card" onclick="openOverlay('game-detail')">
+          <div class="glc-header">
+            <span class="glc-time">Tonight · 9:30 PM</span>
+            <span class="chip chip-slate">Open</span>
+          </div>
+          <div class="glc-venue">Greenwood Pickleball Club</div>
+          <div class="glc-meta">₹350 · 7/8 confirmed</div>
+        </div>
+
+        <div class="game-list-card" onclick="openOverlay('game-detail')">
+          <div class="glc-header">
+            <span class="glc-time">Tomorrow · 6:00 AM</span>
+            <span class="chip chip-slate">3.5–4.5</span>
+          </div>
+          <div class="glc-venue">Koramangala Courts</div>
+          <div class="glc-meta">₹400 · 3/8 confirmed · 5 spots</div>
+        </div>
+
+        <div class="game-list-card" onclick="openOverlay('game-detail')">
+          <div class="glc-header">
+            <span class="glc-time">Wed · 7:00 PM</span>
+            <span class="chip chip-slate">3.5–4.5</span>
+          </div>
+          <div class="glc-venue">Greenwood Pickleball Club</div>
+          <div class="glc-meta">₹350 · 4/8 confirmed · Aarav <i class="ti ti-star" style="font-size: 11px; color: var(--coral);"></i> 4.9</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ME / PROFILE -->
+    <section id="me" class="screen">
+      <div class="profile-header">
+        <h1>Profile</h1>
+        <i class="ti ti-settings" style="font-size: 22px;"></i>
+      </div>
+
+      <div class="profile-hero-card">
+        <svg class="profile-hero-court" viewBox="0 0 100 100" aria-hidden="true">
+          <rect x="10" y="10" width="80" height="80" fill="none" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="50" y1="10" x2="50" y2="90" stroke="#F7F8F5" stroke-width="1.5"/>
+        </svg>
+        <div class="profile-row">
+          <div class="profile-avatar">DK</div>
+          <div>
+            <div class="profile-name">Drishti K</div>
+            <div class="profile-loc"><i class="ti ti-map-pin" style="font-size: 11px;"></i> Indiranagar, Bangalore</div>
+          </div>
+        </div>
+        <div class="profile-matchfit">
+          <div class="label">Your MatchFit</div>
+          <div class="score-row">
+            <span class="score">3.83</span>
+            <span class="verified-tick" style="width: 16px; height: 16px;"><i class="ti ti-check" style="font-size: 11px;"></i></span>
+          </div>
+          <div class="label-row">
+            <span class="form-label">Finding Form</span>
+            <span class="trend"><i class="ti ti-trending-up" style="font-size: 12px;"></i> +0.03 this week</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="three-stats">
+        <div class="stat"><div class="label">Games</div><div class="value">47</div></div>
+        <div class="stat"><div class="label">Plays</div><div class="value">3/wk</div></div>
+        <div class="stat"><div class="label">Reliable</div><div class="value">96%</div></div>
+      </div>
+
+      <div style="padding: 0 18px;"><div class="section-label">Badges</div></div>
+      <div class="badges">
+        <span class="badge blue"><i class="ti ti-shield-check" style="font-size: 12px;"></i> DUPR verified</span>
+        <span class="badge lime"><i class="ti ti-star" style="font-size: 12px;"></i> Reliable 96%</span>
+        <span class="badge lime-tint"><i class="ti ti-flame" style="font-size: 12px;"></i> 3-game streak</span>
+      </div>
+
+      <div style="padding: 0 18px;"><div class="section-label">Your tools</div></div>
+      <div class="profile-actions">
+        <div class="profile-action-card lime" onclick="openOverlay('wallet')">
+          <div class="ico-tile"><i class="ti ti-wallet"></i></div>
+          <div class="info">
+            <div class="title">Wallet</div>
+            <div class="sub">₹420 credit available</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+        <div class="profile-action-card" onclick="openOverlay('calendar')">
+          <div class="ico-tile"><i class="ti ti-calendar"></i></div>
+          <div class="info">
+            <div class="title">Calendar</div>
+            <div class="sub">Sync games to Apple &amp; Google</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+        <div class="profile-action-card blue" onclick="openOverlay('tournament-detail')">
+          <div class="ico-tile"><i class="ti ti-trophy"></i></div>
+          <div class="info">
+            <div class="title">Tournaments</div>
+            <div class="sub">Bangalore Open in 3 days</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+        <div class="profile-action-card" onclick="openOverlay('post-game-rating')">
+          <div class="ico-tile"><i class="ti ti-star"></i></div>
+          <div class="info">
+            <div class="title">Rate last game</div>
+            <div class="sub">3 players to rate · anonymous</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+        <div class="profile-action-card" onclick="openOverlay('organizer-dashboard')">
+          <div class="ico-tile"><i class="ti ti-layout-dashboard"></i></div>
+          <div class="info">
+            <div class="title">Switch to organizer</div>
+            <div class="sub">Manage your community games</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+      </div>
+
+      <div style="padding: 0 18px;">
+        <div class="section-header">
+          <strong>Recent games</strong>
+          <span class="link">See all</span>
+        </div>
+        <div class="recent-row" onclick="openOverlay('game-detail')">
+          <div class="info">
+            <div class="game">Tonight · Greenwood</div>
+            <div class="with">3.5–4.5 · with Rohit · vs Priya, Anjali</div>
+          </div>
+          <span class="delta">+0.03</span>
+        </div>
+        <div class="recent-row">
+          <div class="info">
+            <div class="game">Sat · Koramangala</div>
+            <div class="with">3.5–4.5 · 4 players</div>
+          </div>
+          <span class="delta">+0.02</span>
+        </div>
+        <div class="recent-row" style="margin-bottom: 24px;">
+          <div class="info">
+            <div class="game">Wed · Greenwood</div>
+            <div class="with">3.5–4.5 · 4 players</div>
+          </div>
+          <span class="delta" style="background: rgba(124,135,146,0.15); color: var(--slate);">−0.01</span>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav" id="bottom-nav">
+    <button class="nav-item" data-screen="home">
+      <i class="ti ti-home"></i><span>Home</span>
+    </button>
+    <button class="nav-item" data-screen="players">
+      <i class="ti ti-users"></i><span>Players</span>
+    </button>
+    <button class="nav-fab" onclick="openOverlay('create-game')">
+      <i class="ti ti-plus"></i>
+    </button>
+    <button class="nav-item" data-screen="games">
+      <i class="ti ti-calendar-event"></i><span>Games</span>
+    </button>
+    <button class="nav-item" data-screen="me">
+      <i class="ti ti-user"></i><span>Me</span>
+    </button>
+  </nav>
+
+  <!-- GAME DETAIL OVERLAY -->
+  <section id="game-detail" class="overlay">
+    <div class="detail-hero">
+      <svg class="court-bg" viewBox="0 0 200 200" aria-hidden="true">
+        <rect x="20" y="20" width="160" height="160" fill="none" stroke="#F7F8F5" stroke-width="1.5"/>
+        <line x1="20" y1="100" x2="180" y2="100" stroke="#F7F8F5" stroke-width="1.5"/>
+        <line x1="20" y1="80" x2="180" y2="80" stroke="#F7F8F5" stroke-width="1.5"/>
+        <line x1="20" y1="120" x2="180" y2="120" stroke="#F7F8F5" stroke-width="1.5"/>
+        <line x1="100" y1="20" x2="100" y2="80" stroke="#F7F8F5" stroke-width="1.5"/>
+        <line x1="100" y1="120" x2="100" y2="180" stroke="#F7F8F5" stroke-width="1.5"/>
+      </svg>
+      <div class="ball"></div>
+      <div class="detail-hero-top">
+        <button class="circle-btn" onclick="closeOverlay('game-detail')"><i class="ti ti-arrow-left"></i></button>
+        <div class="detail-hero-actions">
+          <button class="circle-btn"><i class="ti ti-share"></i></button>
+          <button class="circle-btn"><i class="ti ti-bookmark"></i></button>
+        </div>
+      </div>
+      <div class="detail-hero-info">
+        <div class="detail-hero-chips">
+          <span class="detail-hero-chip white">3.5–4.5</span>
+          <span class="detail-hero-chip translucent">Doubles</span>
+          <span class="detail-hero-chip lime-tinted"><i class="ti ti-arrows-shuffle" style="font-size: 11px;"></i> Shuffle</span>
+        </div>
+        <h1>Greenwood Pickleball Club</h1>
+        <div class="sub">Indiranagar · 4 courts · indoor</div>
+      </div>
+    </div>
+    <div class="overlay-content">
+      <div class="detail-card">
+        <div class="row">
+          <div class="when"><strong>Tonight</strong><span class="sub">7:00 PM · 2 hours</span></div>
+          <div><div class="price">₹350</div><span class="price-sub">per player</span></div>
+        </div>
+        <div class="detail-feature-row">
+          <i class="ti ti-arrows-shuffle"></i>
+          <span class="text">Reshuffles at 8:00 PM</span>
+          <span class="sep">·</span>
+          <span class="meta">2 courts</span>
+        </div>
+        <div class="detail-feature-row" style="border-top: 0.5px solid var(--border-light);">
+          <i class="ti ti-navigation"></i>
+          <span class="text" style="color: var(--blue);">Get directions · 2.4 km</span>
+        </div>
+      </div>
+      <div class="section-block">
+        <div class="sec-header">
+          <strong>Players · 5/8</strong>
+          <span class="link" style="font-size: 11px; color: var(--blue); font-weight: 500;">View all</span>
+        </div>
+        <div class="players-card">
+          <div class="player-row">
+            <div class="av av-purple" style="border: 2px solid var(--lime);">PR</div>
+            <div class="info">
+              <div class="name">Priya R <span class="badge lime" style="font-size: 9px; padding: 1px 6px; margin-left: 4px;">Your circle</span></div>
+              <div class="meta">MatchFit 3.7</div>
+            </div>
+          </div>
+          <div class="player-row">
+            <div class="av av-yellow">AM</div>
+            <div class="info"><div class="name">Anjali M</div><div class="meta">MatchFit 4.1</div></div>
+          </div>
+          <div class="player-row">
+            <div class="av av-teal" style="border: 2px solid var(--lime);">RJ</div>
+            <div class="info">
+              <div class="name">Rohit J <span class="badge lime" style="font-size: 9px; padding: 1px 6px; margin-left: 4px;">Your circle</span></div>
+              <div class="meta">MatchFit 3.9</div>
+            </div>
+            <span style="font-size: 10px; color: var(--slate);">+ 2 more</span>
+          </div>
+        </div>
+      </div>
+      <div class="section-block">
+        <div class="sec-header"><strong>Hosted by</strong></div>
+        <div style="background: #FFFFFF; border: 0.5px solid var(--border); border-radius: 12px; padding: 12px 14px; display: flex; align-items: center; gap: 10px;">
+          <div class="avatar">AS</div>
+          <div style="flex: 1;">
+            <div style="font-size: 12px; font-weight: 500;">Aarav S</div>
+            <div style="font-size: 10px; color: var(--slate);"><i class="ti ti-star" style="font-size: 10px; color: var(--coral);"></i> 4.9 · 87 games hosted</div>
+          </div>
+        </div>
+      </div>
+      <div class="cancel-policy">
+        <i class="ti ti-shield-check"></i>
+        <span>Free cancellation up to 24h before. 50% credit within 24h.</span>
+      </div>
+    </div>
+    <div class="sticky-bottom">
+      <button class="btn-lime" onclick="closeOverlay('game-detail'); showToast('Opening payment...')"><i class="ti ti-lock" style="font-size: 14px;"></i> Join · ₹350</button>
+    </div>
+  </section>
+
+  <!-- WAITLIST PAYMENT OVERLAY -->
+  <section id="waitlist-detail" class="overlay">
+    <div class="waitlist-banner">
+      <i class="ti ti-clock-hour-7"></i>
+      <div class="info">
+        <div class="label">A spot opened.</div>
+        <div class="sub">Confirm to claim it.</div>
+      </div>
+      <div class="count" id="waitlist-timer">9:32</div>
+    </div>
+    <div class="overlay-content">
+      <div class="waitlist-center">
+        <h1>You're up.</h1>
+        <div class="sub">Vikram dropped. Your seat is reserved.</div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Joining</div>
+        <div class="create-card padded">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px;">
+            <strong style="font-size: 14px;">Tonight, 8:30 PM</strong>
+            <span class="chip chip-slate">3.0–4.0</span>
+          </div>
+          <div style="font-size: 12px;">Bandra Sports</div>
+          <div style="font-size: 11px; color: var(--slate);">Koramangala · 2 hours</div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Pay with</div>
+        <div class="create-card padded" style="border: 1px solid var(--lime); box-shadow: 0 0 0 3px rgba(184,255,90,0.18);">
+          <div style="display: flex; align-items: center; gap: 12px;">
+            <div style="width: 38px; height: 38px; border-radius: 10px; background: var(--graphite); display: flex; align-items: center; justify-content: center; color: var(--lime); font-size: 14px; font-weight: 500;">UPI</div>
+            <div style="flex: 1;">
+              <div style="font-size: 13px; font-weight: 500;">Google Pay</div>
+              <div style="font-size: 11px; color: var(--slate);">drishti@hdfc</div>
+            </div>
+            <i class="ti ti-check" style="font-size: 18px; color: var(--lime);"></i>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-card padded">
+          <div style="display: flex; justify-content: space-between;">
+            <strong style="font-size: 13px;">Total</strong>
+            <strong style="font-size: 18px;">₹420</strong>
+          </div>
+        </div>
+      </div>
+      <div style="text-align: center; font-size: 11px; color: var(--slate); padding: 14px 18px 110px;">If you don't confirm, the spot moves to <strong style="color: var(--graphite); font-weight: 500;">Tara</strong>.</div>
+    </div>
+    <div class="sticky-bottom">
+      <button class="btn-lime" onclick="closeOverlay('waitlist-detail'); showToast('Spot confirmed · added to calendar')" style="margin-bottom: 8px;"><i class="ti ti-lock" style="font-size: 14px;"></i> Confirm &amp; pay ₹420</button>
+      <div style="text-align: center; font-size: 12px; color: var(--slate); font-weight: 500; cursor: pointer;" onclick="closeOverlay('waitlist-detail'); showToast('Passed · spot moves to Tara')">Pass — can't make it</div>
+    </div>
+  </section>
+
+  <!-- CREATE GAME OVERLAY -->
+  <section id="create-game" class="overlay">
+    <div class="create-header">
+      <div class="left">
+        <i class="ti ti-x" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('create-game')"></i>
+        <h1>New game</h1>
+      </div>
+      <span class="save">Save draft</span>
+    </div>
+    <div class="overlay-content">
+      <div class="quick-start-banner" onclick="showToast('Loaded settings from last Tuesday')">
+        <div class="icon-circle"><i class="ti ti-copy"></i></div>
+        <div class="text">
+          <div class="title">Same as last game</div>
+          <div class="sub">Tue 7 PM · Greenwood · 2 courts · 3.5–4.5</div>
+        </div>
+        <i class="ti ti-chevron-right"></i>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Where</div>
+        <div class="create-card">
+          <div class="create-row">
+            <div class="icon-tile"><i class="ti ti-map-pin"></i></div>
+            <div class="info">
+              <div class="title">Greenwood Pickleball Club</div>
+              <div class="sub">Indiranagar · partner venue</div>
+            </div>
+            <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+          </div>
+          <div class="live-indicator">
+            <span class="dot"></span>
+            <span class="label">Live · 3 courts free at 7 PM</span>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">When</div>
+        <div class="create-stacked">
+          <div class="create-stacked-row">
+            <div class="left"><i class="ti ti-calendar"></i><span class="text">Tonight, May 26</span></div>
+            <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+          </div>
+          <div class="create-stacked-row">
+            <div class="left"><i class="ti ti-clock"></i><span class="text">7:00 PM</span></div>
+            <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+          </div>
+          <div class="create-stacked-row">
+            <div class="left"><i class="ti ti-hourglass"></i><span class="text">2 hours</span></div>
+            <span class="default">default</span>
+          </div>
+          <div class="create-stacked-row">
+            <div class="left"><i class="ti ti-repeat lime"></i></div>
+            <div class="info">
+              <div class="title">Every Tuesday · 7 PM</div>
+              <div class="sub">Weekly · 8 weeks · courts re-checked each week</div>
+            </div>
+            <div class="toggle on" onclick="toggleSwitch(this, event)"><div class="knob"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Format</div>
+        <div class="create-card padded">
+          <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+            <strong style="font-size: 13px;">Doubles · 2 of 3 courts</strong>
+            <span style="font-size: 11px; color: var(--slate);">8 players max</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; padding-top: 10px; border-top: 0.5px solid var(--border-light);">
+            <i class="ti ti-arrows-shuffle" style="font-size: 16px; color: var(--blue);"></i>
+            <div style="flex: 1;">
+              <div style="font-size: 12px; font-weight: 500;">Halftime reshuffle</div>
+              <div style="font-size: 10px; color: var(--slate);">AI reshuffles at 8:00 PM</div>
+            </div>
+            <div class="toggle on" onclick="toggleSwitch(this, event)"><div class="knob"></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Skill range</div>
+        <div class="skill-card">
+          <div class="skill-row">
+            <span class="range">3.5 – 4.5</span>
+            <span class="label">Finding Form</span>
+          </div>
+          <div class="skill-slider">
+            <div class="filled"></div>
+            <div class="handle" style="left: 35%;"></div>
+            <div class="handle" style="left: 57%;"></div>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Price</div>
+        <div class="price-card">
+          <div class="price-row"><span class="label">Court fee · 2 × ₹1,400</span><span class="value">₹2,800</span></div>
+          <div class="price-row total"><span style="font-weight: 500; color: var(--graphite);">Per player · ÷ 8</span><span class="value">₹350</span></div>
+          <div class="price-note">
+            <i class="ti ti-shield-check"></i>
+            <span>Rally reserves the courts with Greenwood. Court fee paid directly to the venue.</span>
+          </div>
+        </div>
+      </div>
+      <div class="create-section">
+        <div class="create-section-label">Visibility</div>
+        <div class="visibility-chips">
+          <button class="visibility-chip active">Public</button>
+          <button class="visibility-chip">Community only</button>
+          <button class="visibility-chip">Link only</button>
+        </div>
+      </div>
+      <div style="height: 100px;"></div>
+    </div>
+    <div class="sticky-bottom">
+      <button class="btn-lime" onclick="closeOverlay('create-game'); showToast('Series published · 8 games live')">Reserve courts &amp; publish · 8 weeks</button>
+    </div>
+  </section>
+
+  <!-- NOTIFICATIONS OVERLAY -->
+  <section id="notifications" class="overlay">
+    <div style="padding: 4px 18px 14px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('notifications')"></i>
+        <div>
+          <div style="font-size: 16px; font-weight: 500;">Notifications</div>
+          <div style="font-size: 11px; color: var(--slate);">5 unread</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <span style="font-size: 11px; color: var(--blue); font-weight: 500; cursor: pointer;">Mark read</span>
+        <i class="ti ti-settings" style="font-size: 20px;"></i>
+      </div>
+    </div>
+
+    <div class="overlay-content">
+      <div style="padding: 0 18px 14px;">
+        <div class="section-label">Today</div>
+
+        <div class="notif-row unread" onclick="openOverlay('game-detail')">
+          <div class="notif-icon lime"><i class="ti ti-sparkles"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title">Court 2 is yours</span><span class="notif-time">6:50 PM</span></div>
+            <div class="notif-body">Tonight's lineup is in. You &amp; Rohit vs Priya &amp; Anjali.</div>
+          </div>
+          <span class="notif-unread-dot"></span>
+        </div>
+
+        <div class="notif-row unread" onclick="openOverlay('waitlist-detail')" style="border-color: rgba(255,122,89,0.3);">
+          <div class="notif-icon coral"><i class="ti ti-clock-hour-7"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title">A spot opened at Bandra</span><span class="notif-time coral">8:21 min</span></div>
+            <div class="notif-body">8:30 PM game · pay in 10 min to confirm</div>
+          </div>
+          <span class="notif-unread-dot"></span>
+        </div>
+
+        <div class="notif-row unread" onclick="openModal('match-modal')">
+          <div class="notif-icon lime"><i class="ti ti-users"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title">You matched with Priya</span><span class="notif-time">3:12 PM</span></div>
+            <div class="notif-body">You can chat or invite each other to games.</div>
+          </div>
+          <span class="notif-unread-dot"></span>
+        </div>
+
+        <div class="notif-row unread" onclick="goTo('me'); closeOverlay('notifications');">
+          <div class="notif-icon blue"><i class="ti ti-trending-up"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title">Your MatchFit moved +0.03</span><span class="notif-time">10:42 AM</span></div>
+            <div class="notif-body">Now 3.83. Peer ratings settled from Saturday.</div>
+          </div>
+          <span class="notif-unread-dot"></span>
+        </div>
+
+        <div class="section-label" style="margin-top: 12px;">Yesterday</div>
+
+        <div class="notif-row read">
+          <div class="notif-icon slate"><i class="ti ti-star"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title" style="font-weight: 400;">Anjali rated your last game</span><span class="notif-time">7:14 PM</span></div>
+            <div class="notif-body">Anonymous · added "Great vibe"</div>
+          </div>
+        </div>
+
+        <div class="notif-row unread" onclick="openOverlay('tournament-detail')">
+          <div class="notif-icon blue"><i class="ti ti-trophy"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title">Bangalore Open · registration open</span><span class="notif-time">2:30 PM</span></div>
+            <div class="notif-body">3.5–4.5 doubles · entries close Mar 30</div>
+          </div>
+          <span class="notif-unread-dot"></span>
+        </div>
+
+        <div class="section-label" style="margin-top: 12px;">This week</div>
+
+        <div class="notif-row read">
+          <div class="notif-icon slate"><i class="ti ti-wallet"></i></div>
+          <div class="notif-text">
+            <div class="notif-head"><span class="notif-title" style="font-weight: 400;">Refund issued · ₹420</span><span class="notif-time">3 days ago</span></div>
+            <div class="notif-body">Tuesday's game cancelled by host</div>
+          </div>
+        </div>
+      </div>
+      <div style="height: 30px;"></div>
+    </div>
+  </section>
+
+  <!-- WALLET OVERLAY -->
+  <section id="wallet" class="overlay">
+    <div style="padding: 4px 18px 16px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('wallet')"></i>
+        <span style="font-size: 18px; font-weight: 500;">Wallet</span>
+      </div>
+      <i class="ti ti-dots" style="font-size: 20px;"></i>
+    </div>
+
+    <div class="overlay-content">
+      <div class="wallet-hero">
+        <svg class="court-bg" viewBox="0 0 100 100" aria-hidden="true">
+          <rect x="10" y="10" width="80" height="80" fill="none" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="10" y1="50" x2="90" y2="50" stroke="#F7F8F5" stroke-width="1.5"/>
+          <line x1="50" y1="10" x2="50" y2="90" stroke="#F7F8F5" stroke-width="1.5"/>
+        </svg>
+        <div class="content">
+          <div class="label">Available balance</div>
+          <div class="balance-row">
+            <span class="amount">₹420</span>
+            <span class="credit-tag">credit</span>
+          </div>
+          <div class="desc">From your cancelled Tuesday game. Use it on your next booking or cash it out.</div>
+          <div class="actions">
+            <button class="btn-w-lime" onclick="showToast('Add bank details to cash out')"><i class="ti ti-arrow-down-to-arc" style="font-size: 14px;"></i> Cash out</button>
+            <button class="btn-w-translucent" onclick="showToast('Will apply on next booking')">Use on next game</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 18px 16px;"><div class="section-label">This month</div></div>
+      <div class="month-stats">
+        <div class="month-stat"><div class="label">Spent</div><div class="value">₹2,800</div></div>
+        <div class="month-stat"><div class="label">Refunded</div><div class="value">₹420</div></div>
+        <div class="month-stat"><div class="label">Games</div><div class="value">8</div></div>
+      </div>
+
+      <div style="padding: 0 18px 16px;">
+        <div class="section-header">
+          <strong>Recent activity</strong>
+          <span class="link">View all</span>
+        </div>
+        <div class="txn-list">
+          <div class="txn-row">
+            <div class="txn-icon out"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="txn-info"><div class="title">Greenwood · tonight 7 PM</div><div class="meta">Paid · Google Pay</div></div>
+            <div class="txn-amount">−₹350</div>
+          </div>
+          <div class="txn-row refund">
+            <div class="txn-icon in"><i class="ti ti-arrow-down-left"></i></div>
+            <div class="txn-info"><div class="title">Tuesday cancelled · refund</div><div class="meta">Auto-credited · Bandra</div></div>
+            <div class="txn-amount">+₹420</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-icon out"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="txn-info"><div class="title">Saturday · Koramangala</div><div class="meta">Paid · Google Pay</div></div>
+            <div class="txn-amount">−₹400</div>
+          </div>
+          <div class="txn-row">
+            <div class="txn-icon out"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="txn-info"><div class="title">Wed · Greenwood</div><div class="meta">Paid · Google Pay</div></div>
+            <div class="txn-amount">−₹350</div>
+          </div>
+        </div>
+      </div>
+
+      <div style="padding: 0 18px 30px;">
+        <div style="background: #FFFFFF; border: 0.5px solid var(--border); border-radius: 12px; padding: 14px; display: flex; gap: 12px; align-items: center; cursor: pointer;" onclick="showToast('Email request sent · check inbox')">
+          <div style="width: 38px; height: 38px; border-radius: 10px; background: rgba(78,161,255,0.12); display: flex; align-items: center; justify-content: center;"><i class="ti ti-file-spreadsheet" style="font-size: 20px; color: var(--blue);"></i></div>
+          <div style="flex: 1;">
+            <div style="font-size: 12px; font-weight: 500;">Need older records?</div>
+            <div style="font-size: 10px; color: var(--slate);">Email me a full Excel summary</div>
+          </div>
+          <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CALENDAR OVERLAY -->
+  <section id="calendar" class="overlay">
+    <div style="padding: 4px 18px 14px; display: flex; justify-content: space-between; align-items: center;">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('calendar')"></i>
+        <span style="font-size: 18px; font-weight: 500;">Calendar</span>
+      </div>
+      <i class="ti ti-calendar-plus" style="font-size: 20px; cursor: pointer;" onclick="showToast('Synced to Google Calendar')"></i>
+    </div>
+
+    <div class="overlay-content">
+      <div class="cal-header">
+        <div class="cal-month-nav">
+          <i class="ti ti-chevron-left" style="font-size: 18px; color: var(--slate);"></i>
+          <span class="month">May 2026</span>
+          <i class="ti ti-chevron-right" style="font-size: 18px; color: var(--slate);"></i>
+        </div>
+        <div class="cal-toggle">
+          <span class="seg active">Month</span>
+          <span class="seg">Agenda</span>
+        </div>
+      </div>
+
+      <div class="cal-grid">
+        <div class="cal-days-of-week">
+          <div class="cal-day-label">S</div><div class="cal-day-label">M</div>
+          <div class="cal-day-label">T</div><div class="cal-day-label">W</div>
+          <div class="cal-day-label">T</div><div class="cal-day-label">F</div>
+          <div class="cal-day-label">S</div>
+        </div>
+        <div class="cal-cells">
+          <div class="cal-cell dimmed"><span class="day-num">26</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">27</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">28</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">29</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">30</span></div>
+          <div class="cal-cell"><span class="day-num">1</span></div>
+          <div class="cal-cell"><span class="day-num">2</span></div>
+
+          <div class="cal-cell"><span class="day-num">3</span></div>
+          <div class="cal-cell"><span class="day-num">4</span></div>
+          <div class="cal-cell"><span class="day-num">5</span><span class="event-dot" style="background: rgba(184,255,90,0.5);"></span></div>
+          <div class="cal-cell"><span class="day-num">6</span></div>
+          <div class="cal-cell"><span class="day-num">7</span></div>
+          <div class="cal-cell"><span class="day-num">8</span></div>
+          <div class="cal-cell"><span class="day-num">9</span><span class="event-dot" style="background: rgba(184,255,90,0.5);"></span></div>
+
+          <div class="cal-cell"><span class="day-num">10</span></div>
+          <div class="cal-cell"><span class="day-num">11</span></div>
+          <div class="cal-cell"><span class="day-num">12</span><span class="event-dot" style="background: rgba(184,255,90,0.5);"></span></div>
+          <div class="cal-cell"><span class="day-num">13</span></div>
+          <div class="cal-cell"><span class="day-num">14</span></div>
+          <div class="cal-cell"><span class="day-num">15</span></div>
+          <div class="cal-cell"><span class="day-num">16</span><span class="event-dot" style="background: rgba(78,161,255,0.5);"></span></div>
+
+          <div class="cal-cell"><span class="day-num">17</span></div>
+          <div class="cal-cell"><span class="day-num">18</span></div>
+          <div class="cal-cell"><span class="day-num">19</span></div>
+          <div class="cal-cell"><span class="day-num">20</span><span class="event-dot" style="background: rgba(184,255,90,0.5);"></span></div>
+          <div class="cal-cell"><span class="day-num">21</span></div>
+          <div class="cal-cell"><span class="day-num">22</span></div>
+          <div class="cal-cell"><span class="day-num">23</span></div>
+
+          <div class="cal-cell"><span class="day-num">24</span></div>
+          <div class="cal-cell"><span class="day-num">25</span></div>
+          <div class="cal-cell today"><span class="day-num">26</span><span class="event-dot" style="background: var(--lime);"></span></div>
+          <div class="cal-cell"><span class="day-num">27</span></div>
+          <div class="cal-cell"><span class="day-num">28</span><span class="event-dot" style="background: var(--lime);"></span></div>
+          <div class="cal-cell"><span class="day-num">29</span></div>
+          <div class="cal-cell"><span class="day-num">30</span><span class="event-dot" style="background: var(--lime);"></span></div>
+
+          <div class="cal-cell"><span class="day-num">31</span><span class="event-dot" style="background: var(--blue);"></span></div>
+          <div class="cal-cell dimmed"><span class="day-num">1</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">2</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">3</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">4</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">5</span></div>
+          <div class="cal-cell dimmed"><span class="day-num">6</span></div>
+        </div>
+      </div>
+
+      <div class="cal-legend">
+        <span class="item"><span class="dot" style="background: var(--lime);"></span>Confirmed</span>
+        <span class="item"><span class="dot" style="background: var(--coral);"></span>Waitlist</span>
+        <span class="item"><span class="dot" style="background: var(--blue);"></span>Tournament</span>
+      </div>
+
+      <div style="padding: 0 18px 14px;">
+        <div class="section-label">Tuesday, May 26 · Today</div>
+        <div class="up-next-card" onclick="openOverlay('game-detail')">
+          <div class="up-next-header">
+            <strong>7:00 PM · Greenwood</strong>
+            <span class="chip chip-lime">Confirmed</span>
+          </div>
+          <div class="meta">Court 2 · 3.5–4.5 · 2 hours</div>
+        </div>
+      </div>
+
+      <div style="padding: 0 18px 30px;">
+        <div class="section-label">Sun, May 31 · Tournament</div>
+        <div class="up-next-card" style="border-left: 3px solid var(--blue); border-color: rgba(78,161,255,0.4);" onclick="openOverlay('tournament-detail')">
+          <div class="up-next-header">
+            <strong>Bangalore Open</strong>
+            <span class="chip" style="background: rgba(78,161,255,0.18); color: #2570B8;">Tournament</span>
+          </div>
+          <div class="meta">8:00 AM – 6:00 PM · doubles · 3.5–4.5</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ORGANIZER DASHBOARD OVERLAY -->
+  <section id="organizer-dashboard" class="overlay">
+    <div class="org-header">
+      <div class="left">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('organizer-dashboard')"></i>
+        <div class="logo-tile">IP</div>
+        <div>
+          <div class="name">Indiranagar Pickle Club</div>
+          <div class="role">Aarav · organizer</div>
+        </div>
+      </div>
+      <i class="ti ti-bell" style="font-size: 20px;"></i>
+    </div>
+
+    <div class="overlay-content">
+
+      <div class="filter-chips">
+        <button class="filter-chip active">Today</button>
+        <button class="filter-chip">Games</button>
+        <button class="filter-chip">Players</button>
+        <button class="filter-chip">Money</button>
+      </div>
+
+      <div class="org-summary-card">
+        <div class="label">Tonight · Tue, May 26</div>
+        <div class="grid-stats">
+          <div class="item">
+            <div class="value">3</div>
+            <div class="key">Games</div>
+          </div>
+          <div class="item">
+            <div class="value lime">₹2,800</div>
+            <div class="key">Paid</div>
+          </div>
+          <div class="item">
+            <div class="value coral">2</div>
+            <div class="key">Pending</div>
+          </div>
+          <div class="item">
+            <div class="value">5</div>
+            <div class="key">Wait</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="org-game-card attention">
+        <div class="org-game-head">
+          <div>
+            <div class="time-venue">
+              <strong>7:00 PM · Greenwood</strong>
+              <span class="chip chip-slate">3.5–4.5</span>
+            </div>
+            <div class="sub">2 courts · 2 hours · shuffle 8 PM</div>
+          </div>
+          <span class="chip" style="background: rgba(255,122,89,0.15); color: #993C1D; font-weight: 500;">Needs attention</span>
+        </div>
+        <div class="org-status-row">
+          <div class="stat"><strong>6</strong>/8 confirmed</div>
+          <div class="stat"><strong class="coral">1</strong> pending</div>
+          <div class="stat"><strong>3</strong> wait</div>
+        </div>
+        <div class="alert-block">
+          <i class="ti ti-clock-hour-7"></i>
+          <div class="info">
+            <div class="title">Rahul reserved a slot</div>
+            <div class="sub">Paying · auto-release in 28m</div>
+          </div>
+        </div>
+        <div class="org-actions">
+          <div class="act" onclick="showToast('Reminder sent to Rahul')">Remind</div>
+          <div class="act" onclick="showToast('Slot released · waitlist promoted')">Release</div>
+          <div class="act locked"><i class="ti ti-lock" style="font-size: 12px;"></i> Courts</div>
+        </div>
+      </div>
+
+      <div class="org-game-card">
+        <div class="org-game-head">
+          <div>
+            <div class="time-venue">
+              <strong>8:30 PM · Bandra</strong>
+              <span class="chip chip-slate">3.0–4.0</span>
+            </div>
+            <div class="sub">4/8 confirmed · 4 spots open</div>
+          </div>
+          <span class="chip chip-blue" style="font-weight: 500;">Need players</span>
+        </div>
+        <div style="margin-top: 6px;">
+          <div style="display: inline-flex; align-items: center; gap: 5px; background: rgba(78,161,255,0.08); color: var(--blue); font-size: 11px; padding: 5px 10px; border-radius: 6px; font-weight: 500; cursor: pointer;" onclick="showToast('Game boosted in discovery feed')"><i class="ti ti-sparkles" style="font-size: 12px;"></i> Boost in discovery</div>
+        </div>
+      </div>
+
+      <div class="org-game-card ready">
+        <div class="org-game-head">
+          <div>
+            <div class="time-venue">
+              <strong>9:30 PM · Greenwood</strong>
+              <span class="chip chip-slate">Open</span>
+            </div>
+            <div class="sub">8/8 confirmed · all paid · waitlist 2</div>
+          </div>
+          <span class="chip chip-lime" style="font-weight: 500;">Ready</span>
+        </div>
+        <div class="org-actions" style="margin-top: 10px;">
+          <div class="act" style="background: var(--lime); border-color: var(--lime); display: inline-flex; justify-content: center; align-items: center; gap: 4px;" onclick="showToast('AI suggested lineup ready to publish')"><i class="ti ti-sparkles" style="font-size: 12px;"></i> Allocate courts</div>
+        </div>
+      </div>
+
+      <div style="padding: 14px 18px 30px;">
+        <div class="section-label">Recent activity</div>
+        <div style="font-size: 11px; color: var(--slate-dark); line-height: 1.7;">
+          <div>· Priya paid for 7 PM · 2 min ago</div>
+          <div>· Rohit joined 9:30 PM waitlist · 4 min ago</div>
+          <div>· Anjali cancelled, refund issued · 12 min ago</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TOURNAMENT DETAIL OVERLAY -->
+  <section id="tournament-detail" class="overlay">
+    <div class="detail-hero blue">
+      <svg class="court-bg" viewBox="0 0 200 200" aria-hidden="true">
+        <path d="M 60 160 L 100 40 L 140 160 Z" fill="#FFFFFF"/>
+        <rect x="70" y="160" width="60" height="10" fill="#FFFFFF"/>
+        <circle cx="100" cy="30" r="14" fill="#FFFFFF"/>
+      </svg>
+      <div class="detail-hero-top">
+        <button class="circle-btn" onclick="closeOverlay('tournament-detail')"><i class="ti ti-arrow-left"></i></button>
+        <div class="detail-hero-actions">
+          <button class="circle-btn"><i class="ti ti-share"></i></button>
+          <button class="circle-btn"><i class="ti ti-bookmark"></i></button>
+        </div>
+      </div>
+      <div class="detail-hero-info">
+        <div class="detail-hero-chips">
+          <span class="detail-hero-chip coral"><i class="ti ti-flame" style="font-size: 11px;"></i> 3 days to register</span>
+          <span class="detail-hero-chip white">3.5+</span>
+        </div>
+        <h1>Bangalore Open 2026</h1>
+        <div class="sub">Sat–Sun, May 31 · Greenwood Pickleball</div>
+      </div>
+    </div>
+
+    <div class="overlay-content">
+      <div class="detail-card">
+        <div class="row">
+          <div class="when"><strong>May 31 – Jun 1</strong><span class="sub">2 days · 8 AM – 8 PM</span></div>
+          <div><div class="price">₹1,500</div><span class="price-sub">entry · doubles</span></div>
+        </div>
+        <div class="detail-feature-row">
+          <i class="ti ti-navigation"></i>
+          <span class="text" style="color: var(--blue);">Greenwood Pickleball · 2.4 km</span>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="sec-header"><strong>Format</strong></div>
+        <div class="create-card padded">
+          <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <div style="flex: 1; padding-right: 10px; border-right: 0.5px solid var(--border-light);">
+              <div style="font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; margin-bottom: 2px;">Format</div>
+              <div style="font-size: 12px; font-weight: 500;">Doubles</div>
+            </div>
+            <div style="flex: 1; padding-right: 10px; border-right: 0.5px solid var(--border-light);">
+              <div style="font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; margin-bottom: 2px;">Brackets</div>
+              <div style="font-size: 12px; font-weight: 500;">5 levels</div>
+            </div>
+            <div style="flex: 1;">
+              <div style="font-size: 10px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500; margin-bottom: 2px;">Prize pool</div>
+              <div style="font-size: 12px; font-weight: 500;">₹50k</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 8px; align-items: center; padding-top: 10px; border-top: 0.5px solid var(--border-light);">
+            <i class="ti ti-sparkles" style="font-size: 14px; color: var(--blue);"></i>
+            <span style="font-size: 11px;">DUPR-rated · counts toward your score</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-block">
+        <div class="sec-header">
+          <strong>Registered · 96/128</strong>
+          <span class="link" style="font-size: 11px; color: var(--blue); font-weight: 500;">View bracket</span>
+        </div>
+        <div class="create-card padded">
+          <div style="display: flex; align-items: center; gap: 3px; margin-bottom: 8px;">
+            <div class="mini-avatar av-purple" style="border-color: var(--lime); border-width: 2px;">PR</div>
+            <div class="mini-avatar av-teal" style="border-color: var(--lime); border-width: 2px;">RJ</div>
+            <div class="mini-avatar av-yellow">AM</div>
+            <div class="mini-avatar av-blue">VN</div>
+            <span style="font-size: 10px; color: var(--slate); margin-left: 6px;">+ 92 registered</span>
+          </div>
+          <div style="margin-top: 8px;">
+            <span class="badge lime" style="font-size: 10px;">Priya &amp; Rohit from your circle</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="cancel-policy" style="padding: 0 18px 110px;">
+        <i class="ti ti-info-circle"></i>
+        <span>Bracket published 24h before. Partner needed at registration. Free cancellation until May 28.</span>
+      </div>
+    </div>
+
+    <div class="sticky-bottom">
+      <button class="btn-lime" onclick="closeOverlay('tournament-detail'); showToast('Registered · check email for confirmation')">Register · ₹1,500</button>
+    </div>
+  </section>
+
+  <!-- POST-GAME RATING OVERLAY -->
+  <section id="post-game-rating" class="overlay">
+    <div class="rate-header">
+      <div class="left">
+        <i class="ti ti-arrow-left" style="font-size: 22px; cursor: pointer;" onclick="closeOverlay('post-game-rating')"></i>
+      </div>
+      <span class="skip" onclick="closeOverlay('post-game-rating'); showToast('Skipped rating')">Skip all</span>
+    </div>
+
+    <div class="overlay-content">
+      <div class="rate-intro">
+        <div class="pre">Tonight at Greenwood</div>
+        <h1>How was the game?</h1>
+        <p>Rate the players you played with. Anonymous, takes 10 seconds.</p>
+      </div>
+
+      <div style="padding: 0 18px 10px;">
+        <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+          <span style="font-size: 11px; color: var(--slate); text-transform: uppercase; letter-spacing: 0.4px; font-weight: 500;">Your group</span>
+          <span style="font-size: 11px; color: var(--slate);">1 of 3 rated</span>
+        </div>
+      </div>
+
+      <div class="rate-player-row done">
+        <div class="av av-teal">RJ</div>
+        <div class="name-info">
+          <div class="name">Rohit J</div>
+          <div class="role">First half partner · Second half opponent</div>
+        </div>
+        <span class="rate-status-rated"><i class="ti ti-check" style="font-size: 11px;"></i> Rated</span>
+      </div>
+
+      <div class="rate-player-row" onclick="showToast('Opening rating sheet for Priya')">
+        <div class="av av-purple">PR</div>
+        <div class="name-info">
+          <div class="name">Priya R</div>
+          <div class="role">Opponent both halves</div>
+        </div>
+        <i class="ti ti-chevron-right" style="color: var(--slate);"></i>
+      </div>
+
+      <div class="rate-player-row next" onclick="showToast('Opening rating sheet for Anjali')">
+        <div class="av av-yellow">AM</div>
+        <div class="name-info">
+          <div class="name">Anjali M</div>
+          <div class="role">Opponent first half · Partner second</div>
+        </div>
+        <span class="rate-status-tap">Tap to rate</span>
+      </div>
+
+      <div class="privacy-callout">
+        <i class="ti ti-shield-check"></i>
+        <div class="text">Ratings are <strong>anonymous</strong>. They won't see your name.</div>
+      </div>
+
+      <div style="height: 100px;"></div>
+    </div>
+
+    <div class="sticky-bottom">
+      <button class="btn-lime" style="background: rgba(124,135,146,0.15); color: var(--slate);">Submit ratings (2 left)</button>
+    </div>
+  </section>
+
+  <!-- MATCH MODAL -->
+  <section id="match-modal" class="modal">
+    <div class="modal-close"><i class="ti ti-x" onclick="closeModal('match-modal')"></i></div>
+    <div class="modal-content">
+      <div class="match-label">Match</div>
+      <h1>You both want<br>to play.</h1>
+      <div class="sub">You and Priya can now chat and invite each other to games.</div>
+      <div class="match-avatars">
+        <div class="match-avatar">DK</div>
+        <div class="match-avatar" style="background: #1a1d20;">PR</div>
+      </div>
+      <div class="match-info">
+        <div class="player"><div class="name">Drishti K</div><div class="mf">MatchFit 3.8</div></div>
+        <div class="player"><div class="name">Priya R</div><div class="mf">MatchFit 3.7</div></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" onclick="closeModal('match-modal'); showToast('Chat opened with Priya')"><i class="ti ti-message" style="font-size: 16px;"></i> Send a message</button>
+      <button class="btn-secondary" onclick="closeModal('match-modal'); showToast('Invite drafted')"><i class="ti ti-calendar-plus" style="font-size: 16px;"></i> Invite to a game</button>
+      <div class="skip" onclick="closeModal('match-modal')">Keep swiping</div>
+    </div>
+  </section>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+</div>
+
+<script>
+const screens = document.querySelectorAll('.screen');
+const navItems = document.querySelectorAll('[data-screen]');
+const onboardingScreens = ['welcome', 'phone-entry', 'otp', 'welcome-bridge', 'skill-declare', 'dupr-link', 'profile-setup'];
+
+function goTo(id, fromOnboarding) {
+  // close any open overlays
+  document.querySelectorAll('.overlay.active').forEach(o => o.classList.remove('active'));
+  document.querySelectorAll('.modal.active').forEach(m => m.classList.remove('active'));
+
+  screens.forEach(s => s.classList.remove('active'));
+  const target = document.getElementById(id);
+  target.classList.add('active');
+  target.scrollTop = 0;
+
+  navItems.forEach(n => n.classList.toggle('active', n.dataset.screen === id));
+
+  const nav = document.getElementById('bottom-nav');
+  if (onboardingScreens.includes(id)) {
+    nav.style.display = 'none';
+  } else {
+    nav.style.display = 'flex';
+  }
+
+  const statusBar = document.getElementById('status-bar');
+  if (id === 'welcome') {
+    statusBar.classList.add('dark');
+  } else {
+    statusBar.classList.remove('dark');
+  }
+}
+
+navItems.forEach(item => {
+  item.addEventListener('click', () => goTo(item.dataset.screen));
+});
+
+function openOverlay(id) {
+  const el = document.getElementById(id);
+  el.classList.add('active');
+  el.scrollTop = 0;
+  const content = el.querySelector('.overlay-content');
+  if (content) content.scrollTop = 0;
+
+  // Start waitlist countdown if applicable
+  if (id === 'waitlist-detail') startWaitlistTimer();
+}
+
+function closeOverlay(id) {
+  document.getElementById(id).classList.remove('active');
+  if (id === 'waitlist-detail') stopWaitlistTimer();
+}
+
+function openModal(id) {
+  document.getElementById(id).classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+}
+
+function toggleSwitch(el, ev) {
+  el.classList.toggle('on');
+  if (ev) ev.stopPropagation();
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// Hide nav on welcome (initial)
+document.getElementById('bottom-nav').style.display = 'none';
+document.getElementById('status-bar').classList.add('dark');
+
+// Filter chip toggling
+document.querySelectorAll('.filter-chip').forEach(c => {
+  c.addEventListener('click', () => c.classList.toggle('active'));
+});
+
+// Visibility chip toggling (single select)
+document.querySelectorAll('.visibility-chip').forEach(c => {
+  c.addEventListener('click', () => {
+    document.querySelectorAll('.visibility-chip').forEach(x => x.classList.remove('active'));
+    c.classList.add('active');
+  });
+});
+
+// Skill card selection
+function selectSkill(el) {
+  document.querySelectorAll('.skill-card-row').forEach(x => x.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+// Waitlist countdown
+let waitlistInterval;
+function startWaitlistTimer() {
+  let secs = 9 * 60 + 32; // 9:32
+  const el = document.getElementById('waitlist-timer');
+  el.textContent = formatTime(secs);
+  waitlistInterval = setInterval(() => {
+    secs--;
+    if (secs <= 0) {
+      stopWaitlistTimer();
+      showToast('Time expired · spot moved to Tara');
+      closeOverlay('waitlist-detail');
+      return;
+    }
+    el.textContent = formatTime(secs);
+  }, 1000);
+}
+
+function stopWaitlistTimer() {
+  clearInterval(waitlistInterval);
+}
+
+function formatTime(secs) {
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+  return m + ':' + (s < 10 ? '0' + s : s);
+}
+</script>
+
+</body>
+</html>
